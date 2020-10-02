@@ -1,0 +1,62 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+
+[tool.poetry]
+name = "mdformat-toc"
+version = "0.0.0"  # DO NOT EDIT THIS LINE MANUALLY. LET bump2version UTILITY DO IT
+authors = ["Taneli Hukkinen <hukkinj1@users.noreply.github.com>"]
+description = "Mdformat plugin to generate table of contents"
+repository = "https://github.com/hukkinj1/mdformat-toc"
+readme = "README.md"
+license = "MIT"
+classifiers = [
+    "Topic :: Documentation",
+    "Topic :: Text Processing :: Markup",
+    "Typing :: Typed",
+]
+keywords = ["mdformat", "markdown", "commonmark", "formatter"]
+
+packages = [
+    {include = "mdformat_toc"},
+]
+#include = ["mdformat_toc/py.typed"]
+
+#[tool.poetry.urls]
+#"Changelog" = "https://github.com/hukkinj1/mdformat-toc/blob/master/CHANGELOG.md"
+
+[tool.poetry.plugins."mdformat.parser_extension"]
+"toc" = "mdformat_toc.plugin"
+
+[tool.poetry.dependencies]
+python = "^3.6"
+mdformat = ">=0.3.2" # TODO: fix the version when it's released
+
+[tool.poetry.dev-dependencies]
+# Tests
+pytest = "*"
+pytest-randomly = "*"
+
+# Tools
+pre-commit = "*"
+bump2version = "*"
+
+
+[tool.isort]
+skip = ["venv"]
+# Force imports to be sorted by module, independent of import type
+force_sort_within_sections = true
+# Group first party and local folder imports together
+no_lines_before = ["LOCALFOLDER"]
+
+# Configure isort to work without access to site-packages
+known_first_party = ["mdformat_toc", "tests"]
+
+# Settings for Black compatibility
+profile = "black"
+
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers --strict-config"
+xfail_strict = true

@@ -1,0 +1,31 @@
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: e1668fe86af3810fbca72b8653fe478e66a0afdc  # frozen: v3.2.0
+  hooks:
+  - id: check-yaml
+  - id: check-toml
+- repo: https://github.com/pre-commit/pygrep-hooks
+  rev: eae6397e4c259ed3d057511f6dd5330b92867e62  # frozen: v1.6.0
+  hooks:
+  - id: python-use-type-annotations
+  - id: python-check-blanket-noqa
+- repo: https://github.com/timothycrosley/isort
+  rev: ec78bf395883bc396bf378a2290af6d8004ea6c3  # frozen: 5.5.3
+  hooks:
+  - id: isort
+- repo: https://github.com/psf/black
+  rev: e66be67b9b6811913470f70c28b4d50f94d05b22  # frozen: 20.8b1
+  hooks:
+  - id: black
+- repo: https://gitlab.com/pycqa/flake8
+  rev: 05f6544aef321e2fee03a1277ce2eef8880fb927  # frozen: 3.8.3
+  hooks:
+  - id: flake8
+    additional_dependencies:
+    - flake8-bugbear
+    - flake8-builtins
+    - flake8-comprehensions
+- repo: https://github.com/myint/docformatter
+  rev: de0bf8fa254d25a01383fecdb6335bea01daeae3  # frozen: v1.3.1
+  hooks:
+  - id: docformatter
