@@ -79,3 +79,30 @@ def test_level_restrictions():
 #### Level 4
 """
     assert mdformat.text(unformatted_md, extensions={"toc"}) == formatted_md
+
+
+def test_duplicate_title():
+    unformatted_md = """<!-- mdformat-toc start -->
+# Same name
+# Same name
+## Same name
+### Same name
+"""
+    formatted_md = r"""<!-- mdformat-toc start --maxlevel=6 --minlevel=1 -->
+
+- [Same name](<#same-name>)
+- [Same name](<#same-name-1>)
+  - [Same name](<#same-name-2>)
+    - [Same name](<#same-name-3>)
+
+<!-- mdformat-toc end -->
+
+# Same name
+
+# Same name
+
+## Same name
+
+### Same name
+"""
+    assert mdformat.text(unformatted_md, extensions={"toc"}) == formatted_md
