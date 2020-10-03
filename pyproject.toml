@@ -31,7 +31,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.6"
-mdformat = ">=0.3.2" # TODO: fix the version when it's released
+mdformat = ">=0.3.3"
 
 [tool.poetry.dev-dependencies]
 # Tests
@@ -40,6 +40,7 @@ pytest-randomly = "*"
 
 # Tools
 pre-commit = "*"
+mypy = "*"
 bump2version = "*"
 
 
