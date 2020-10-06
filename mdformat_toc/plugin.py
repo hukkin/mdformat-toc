@@ -155,6 +155,12 @@ def _get_args_sequence(token: Token) -> List[str]:
 
 
 class _Args:
+    """Arg parser for the TOC.
+
+    Parse TOC args from a sequence of strings. Allow setting default
+    values.
+    """
+
     def __init__(self, args_seq: Sequence[str]):
         self.minlevel = 1
         self.maxlevel = 6
@@ -169,6 +175,8 @@ class _Args:
                     setattr(self, int_arg_name, int_value)
 
     def __str__(self) -> str:
+        """Return a string that when str.split() and passed to _Args.__init__,
+        will reconstruct an equivalent object."""
         return " ".join(
             f"--{int_arg_name}={getattr(self, int_arg_name)}"
             for int_arg_name in self._int_args_names
