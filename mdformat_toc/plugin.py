@@ -6,12 +6,13 @@ from markdown_it.token import Token
 from mdformat.renderer import MDRenderer
 
 from mdformat_toc.slug import SLUG_FUNCS, get_unique_slugify
+from mdformat_toc.markdown_it_extension import anchors_plugin
 
 CHANGES_AST = True
 
 
-def update_mdit(_mdit: MarkdownIt) -> None:
-    pass
+def update_mdit(mdit: MarkdownIt) -> None:
+    mdit.use(anchors_plugin, min_level=1, max_level=6)
 
 
 def render_token(
