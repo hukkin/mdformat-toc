@@ -1,6 +1,7 @@
+import collections
 import itertools
 import re
-from typing import Any, List, Mapping, Optional, Sequence, Set, Tuple
+from typing import Any, Callable, Counter, List, Mapping, Optional, Sequence, Tuple
 import urllib.parse
 
 from markdown_it import MarkdownIt
@@ -110,10 +111,10 @@ def _render_toc(
     for i, heading in enumerate(headings):
         heading.set_parent(headings, i)
 
-    used_slugs: Set[str] = set()
+    unique_slugify = _get_unique_slugify(_slugify_github)
     for heading in headings:
         indentation = "  " * heading.get_indentation_level()
-        slug = _unique_slug(_slugify(heading.text), used_slugs)
+        slug = unique_slugify(heading.text)
         toc += f"{indentation}- [{heading.text}](<#{slug}>)\n"
 
     return toc
@@ -174,17 +175,18 @@ class _Args:
         )
 
 
-def _unique_slug(slug: str, used_slugs: Set[str]) -> str:
-    unique = slug
-    i = 1
-    while unique in used_slugs:
-        unique = f"{slug}-{i}"
-        i += 1
-    used_slugs.add(unique)
-    return unique
+def _get_unique_slugify(slug_func: Callable[[str, int], str]) -> Callable[[str], str]:
+    title_counts: Counter[str] = collections.Counter()
+
+    def unique_slugify(title: str) -> str:
+        slug = slug_func(title, title_counts[title])
+        title_counts[title] += 1
+        return slug
+
+    return unique_slugify
 
 
-def _slugify(title: str) -> str:
+def _slugify(title: str, repetition: int) -> str:
     title = title.strip().lower()
     title = re.sub(r"\s", "-", title)
     # Remove everything except:
@@ -192,4 +194,24 @@ def _slugify(title: str) -> str:
     #   - Chinese characters
     #   - Hyphen (-)
     title = re.sub(r"[^\w\u4e00-\u9fff\-]", "", title)
-    return urllib.parse.quote_plus(title)
+    title = urllib.parse.quote_plus(title)
+    if repetition:
+        title += f"-{repetition}"
+    return title
+
+
+def _slugify_github(title: str, repetition: int) -> str:
+    title = title.strip().lower()
+
+    title = title.replace(" ", "-")
+
+    # Remove hex codes (e.g. "%9f")
+    title = re.sub("%[A-Fa-f0-9]{2}", "", title)
+
+    # Remove a set of single characters
+    title = re.sub("[/?!:\\[\\]`.,()*\"';{}+=<>~$|#&@\\t]", "", title)
+
+    title = urllib.parse.quote_plus(title)
+    if repetition:
+        title += f"-{repetition}"
+    return title
