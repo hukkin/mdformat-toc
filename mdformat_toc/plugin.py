@@ -94,9 +94,10 @@ def _render_toc(
     for i, tkn in enumerate(tokens):
         if tkn.type != "heading_open":
             continue
-        closing_tkn_idx = _index_closing_token(tokens, i)
-        heading_text = renderer.render(
-            tokens[i + 1 : closing_tkn_idx], options, env, finalize=False
+        heading_text = "".join(
+            child.content
+            for child in tokens[i + 1].children
+            if child.type in ["text", "code_inline"]
         )
         # There can be newlines in setext headers. Convert newlines to spaces.
         heading_text = heading_text.replace("\n", " ").rstrip()
@@ -116,16 +117,6 @@ def _render_toc(
         toc += f"{indentation}- [{heading.text}](<#{slug}>)\n"
 
     return toc
-
-
-def _index_closing_token(tokens: Sequence[Token], opening_token_idx: int) -> int:
-    opening_tkn = tokens[opening_token_idx]
-    assert opening_tkn.nesting == 1, "Cant find closing token for non opening token"
-    for i in range(opening_token_idx + 1, len(tokens)):
-        closing_tkn_candidate = tokens[i]
-        if closing_tkn_candidate.level == opening_tkn.level:
-            return i
-    raise ValueError("Invalid token list. Closing token not found.")
 
 
 def _find_toc_end_token(tokens: Sequence[Token], start_index: int) -> Optional[int]:
