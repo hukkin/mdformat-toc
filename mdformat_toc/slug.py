@@ -1,6 +1,6 @@
 import collections
 import re
-from typing import Callable, Counter
+from typing import Callable, Counter, Mapping
 import urllib.parse
 
 
@@ -54,3 +54,9 @@ def slugify_gitlab(title: str, repetition: int) -> str:
     if repetition:
         title += f"-{repetition}"
     return title
+
+
+SLUG_FUNCS: Mapping[str, Callable[[str, int], str]] = {
+    "github": slugify_github,
+    "gitlab": slugify_gitlab,
+}

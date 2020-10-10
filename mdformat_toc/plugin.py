@@ -5,7 +5,7 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from mdformat.renderer import MDRenderer
 
-from mdformat_toc.slug import get_unique_slugify, slugify_github
+from mdformat_toc.slug import SLUG_FUNCS, get_unique_slugify
 
 CHANGES_AST = True
 
@@ -50,6 +50,7 @@ def render_token(
         env,
         minlevel=parsed_opts.minlevel,
         maxlevel=parsed_opts.maxlevel,
+        slug_style=parsed_opts.slug_style,
     )
     text += "\n<!-- mdformat-toc end -->\n\n"
 
@@ -86,6 +87,7 @@ def _render_toc(
     *,
     minlevel: int,
     maxlevel: int,
+    slug_style: str,
 ) -> str:
     toc = ""
 
@@ -114,7 +116,7 @@ def _render_toc(
     for i, heading in enumerate(headings):
         heading.set_parent(headings, i)
 
-    unique_slugify = get_unique_slugify(slugify_github)
+    unique_slugify = get_unique_slugify(SLUG_FUNCS[slug_style])
     for heading in headings:
         indentation = "  " * heading.get_indentation_level()
         slug = unique_slugify(heading.text)
@@ -169,10 +171,17 @@ class _Args:
                         continue
                     setattr(self, int_arg_name, int_value)
 
+        self.slug_style = "github"
+        for arg in args_seq:
+            if arg.startswith("--slug="):
+                style = arg[len("--slug=") :]
+                if style in SLUG_FUNCS:
+                    self.slug_style = style
+
     def __str__(self) -> str:
         """Return a string that when str.split() and passed to _Args.__init__,
         will reconstruct an equivalent object."""
-        return " ".join(
+        return f"--slug={self.slug_style} " + " ".join(
             f"--{int_arg_name}={getattr(self, int_arg_name)}"
             for int_arg_name in self._int_args_names
         )

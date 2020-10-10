@@ -3,7 +3,7 @@ HTML in heading
 <!-- mdformat-toc start -->
 # HTML here `<h1>lol</h1>`
 .
-<!-- mdformat-toc start --maxlevel=6 --minlevel=1 -->
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
 
 - [HTML here `<h1>lol</h1>`](<#html-here-h1lolh1>)
 
@@ -20,7 +20,7 @@ Duplicate title
 ## Same name
 ### Same name
 .
-<!-- mdformat-toc start --maxlevel=6 --minlevel=1 -->
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
 
 - [Same name](<#same-name>)
 - [Same name](<#same-name-1>)
@@ -47,7 +47,7 @@ Level restrictions
 ### Level 3
 #### Level 4
 .
-<!-- mdformat-toc start --maxlevel=3 --minlevel=2 -->
+<!-- mdformat-toc start --slug=github --maxlevel=3 --minlevel=2 -->
 
 - [Level 2](<#level-2>)
   - [Level 3](<#level-3>)
@@ -70,7 +70,7 @@ Empty ToC
 No headers.
 No TOC in this file.
 .
-<!-- mdformat-toc start --maxlevel=6 --minlevel=1 -->
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
 
 
 <!-- mdformat-toc end -->
@@ -94,7 +94,7 @@ Level 1
 
 # Level 1
 .
-<!-- mdformat-toc start --maxlevel=6 --minlevel=1 -->
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
 
 - [Level 1](<#level-1>)
   - [Level  zwei](<#level--zwei>)
@@ -113,4 +113,19 @@ Level 1
 ## Level 2 .+ Az//&w\_äöe-i
 
 # Level 1
+.
+
+Gitlab slug
+.
+<!-- mdformat-toc start --slug=gitlab -->
+
+# Gitlab slug reduces-------hyphens
+.
+<!-- mdformat-toc start --slug=gitlab --maxlevel=6 --minlevel=1 -->
+
+- [Gitlab slug reduces-------hyphens](<#gitlab-slug-reduces-hyphens>)
+
+<!-- mdformat-toc end -->
+
+# Gitlab slug reduces\-\-\-\-\-\--hyphens
 .
