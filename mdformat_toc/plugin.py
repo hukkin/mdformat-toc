@@ -1,12 +1,11 @@
-import collections
 import itertools
-import re
-from typing import Any, Callable, Counter, List, Mapping, Optional, Sequence, Tuple
-import urllib.parse
+from typing import Any, List, Mapping, Optional, Sequence, Tuple
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from mdformat.renderer import MDRenderer
+
+from mdformat_toc.slug import get_unique_slugify, slugify_github
 
 CHANGES_AST = True
 
@@ -95,11 +94,15 @@ def _render_toc(
     for i, tkn in enumerate(tokens):
         if tkn.type != "heading_open":
             continue
-        heading_text = "".join(
-            child.content
-            for child in tokens[i + 1].children
-            if child.type in ["text", "code_inline"]
-        )
+
+        # Collect heading text from the children of the inline token
+        heading_text = ""
+        for child in tokens[i + 1].children:
+            if child.type == "text":
+                heading_text += child.content
+            elif child.type == "code_inline":
+                heading_text += "`" + child.content + "`"
+
         # There can be newlines in setext headers. Convert newlines to spaces.
         heading_text = heading_text.replace("\n", " ").rstrip()
         headings.append(_Heading(level=int(tkn.tag[1:]), text=heading_text))
@@ -111,7 +114,7 @@ def _render_toc(
     for i, heading in enumerate(headings):
         heading.set_parent(headings, i)
 
-    unique_slugify = _get_unique_slugify(_slugify_github)
+    unique_slugify = get_unique_slugify(slugify_github)
     for heading in headings:
         indentation = "  " * heading.get_indentation_level()
         slug = unique_slugify(heading.text)
@@ -173,45 +176,3 @@ class _Args:
             f"--{int_arg_name}={getattr(self, int_arg_name)}"
             for int_arg_name in self._int_args_names
         )
-
-
-def _get_unique_slugify(slug_func: Callable[[str, int], str]) -> Callable[[str], str]:
-    title_counts: Counter[str] = collections.Counter()
-
-    def unique_slugify(title: str) -> str:
-        slug = slug_func(title, title_counts[title])
-        title_counts[title] += 1
-        return slug
-
-    return unique_slugify
-
-
-def _slugify(title: str, repetition: int) -> str:
-    title = title.strip().lower()
-    title = re.sub(r"\s", "-", title)
-    # Remove everything except:
-    #   - Unicode word characters
-    #   - Chinese characters
-    #   - Hyphen (-)
-    title = re.sub(r"[^\w\u4e00-\u9fff\-]", "", title)
-    title = urllib.parse.quote_plus(title)
-    if repetition:
-        title += f"-{repetition}"
-    return title
-
-
-def _slugify_github(title: str, repetition: int) -> str:
-    title = title.strip().lower()
-
-    title = title.replace(" ", "-")
-
-    # Remove hex codes (e.g. "%9f")
-    title = re.sub("%[A-Fa-f0-9]{2}", "", title)
-
-    # Remove a set of single characters
-    title = re.sub("[/?!:\\[\\]`.,()*\"';{}+=<>~$|#&@\\t]", "", title)
-
-    title = urllib.parse.quote_plus(title)
-    if repetition:
-        title += f"-{repetition}"
-    return title
