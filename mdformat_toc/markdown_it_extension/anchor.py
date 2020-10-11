@@ -42,11 +42,12 @@ def _make_anchors_func(  # noqa: C901
             level = int(token.tag[1])
             if level not in selected_levels:
                 continue
-            title = "".join(
-                child.content
-                for child in state.tokens[idx + 1].children
-                if child.type in ["text", "code_inline"]
-            )
+            title = ""
+            for child in state.tokens[idx + 1].children:
+                if child.type == "text":
+                    title += child.content
+                elif child.type == "code_inline":
+                    title += "`" + child.content + "`"
             slug = unique_slug(slug_func(title), slugs)
 
             # Remove possible existing anchor
@@ -80,7 +81,7 @@ def _make_anchors_func(  # noqa: C901
 
             # Add the type of anchor we want
             link_tokens = [
-                Token("html_inline", "", 0, content=f'<a name="#{slug}">'),
+                Token("html_inline", "", 0, content=f'<a name="{slug}">'),
                 Token("text", "", 0, content=permalinkSymbol),
                 Token("html_inline", "", 0, content="</a>"),
             ]
