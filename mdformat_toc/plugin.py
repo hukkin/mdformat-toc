@@ -5,8 +5,8 @@ from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from mdformat.renderer import MDRenderer
 
-from mdformat_toc.slug import SLUG_FUNCS, get_unique_slugify
 from mdformat_toc.markdown_it_extension import anchors_plugin
+from mdformat_toc.slug import SLUG_FUNCS, get_unique_slugify
 
 CHANGES_AST = True
 

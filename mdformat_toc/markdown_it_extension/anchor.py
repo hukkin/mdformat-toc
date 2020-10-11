@@ -1,5 +1,5 @@
 import re
-from typing import Callable, Iterable, Optional
+from typing import Callable, Iterable, Optional, Set
 
 from markdown_it import MarkdownIt
 from markdown_it.rules_core import StateCore
@@ -12,7 +12,7 @@ def anchors_plugin(
     max_level: int = 2,
     slug_func: Optional[Callable[[str], str]] = None,
     permalinkSymbol: str = "",
-):
+) -> None:
     """Plugin for adding header anchors, based on.
 
     <https://github.com/valeriangalliat/markdown-it-anchor>.
@@ -32,12 +32,11 @@ def _make_anchors_func(  # noqa: C901
     selected_levels: Iterable[int],
     slug_func: Callable[[str], str],
     permalinkSymbol: str,
-):
-    slugs = set()
+) -> Callable[[StateCore], None]:
+    slugs: Set[str] = set()
 
-    def _anchor_func(state: StateCore):
+    def _anchor_func(state: StateCore) -> None:
         for (idx, token) in enumerate(state.tokens):
-            token: Token
             if token.type != "heading_open":
                 continue
             level = int(token.tag[1])
@@ -62,6 +61,7 @@ def _make_anchors_func(  # noqa: C901
                 if anchor_start_idx is not None and inline_token.content == "</a>":
                     anchor_end_idx = inline_idx
             if anchor_start_idx is not None:
+                assert anchor_end_idx is not None
                 state.tokens[idx + 1].children = (
                     state.tokens[idx + 1].children[:anchor_start_idx]
                     + state.tokens[idx + 1].children[anchor_end_idx + 1 :]
@@ -89,11 +89,11 @@ def _make_anchors_func(  # noqa: C901
     return _anchor_func
 
 
-def slugify(title: str):
+def slugify(title: str) -> str:
     return re.sub(r"[^\w\u4e00-\u9fff\- ]", "", title.strip().lower().replace(" ", "-"))
 
 
-def unique_slug(slug: str, slugs: set):
+def unique_slug(slug: str, slugs: set) -> str:
     uniq = slug
     i = 1
     while uniq in slugs:
