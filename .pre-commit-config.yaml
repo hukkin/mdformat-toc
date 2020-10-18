@@ -10,7 +10,7 @@ repos:
   - id: python-use-type-annotations
   - id: python-check-blanket-noqa
 - repo: https://github.com/timothycrosley/isort
-  rev: 491b3461d572249de71a7b2572af281322d4f40b  # frozen: 5.6.3
+  rev: 6bb47b7acc1554ecb59d2855e9110c447162f674  # frozen: 5.6.4
   hooks:
   - id: isort
 - repo: https://github.com/psf/black
