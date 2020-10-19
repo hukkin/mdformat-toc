@@ -1,12 +1,15 @@
 from __future__ import annotations
 
+import copy
 import itertools
+import re
 from typing import Any, Iterable, List, Mapping, NamedTuple, Optional, Sequence, Tuple
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from mdformat.renderer import MDRenderer
 
+import mdformat_toc
 from mdformat_toc.slug import SLUG_FUNCS, get_unique_slugify
 
 CHANGES_AST = True
@@ -25,8 +28,9 @@ def render_token(
 ) -> Optional[Tuple[str, int]]:
     first_pass = "mdformat-toc" not in env
     if first_pass:
-        env["mdformat-toc"] = {}
+        env["mdformat-toc"] = {"rendered_headings": 0}
 
+        # Load ToC options
         toc_start_tkn_index = _find_toc_start_token(tokens)
         if toc_start_tkn_index is None:
             env["mdformat-toc"]["opts"] = None
@@ -35,6 +39,7 @@ def render_token(
             tokens[toc_start_tkn_index]
         )
 
+        # Load heading structure
         toc_end_tkn_index = _find_toc_end_token(tokens, toc_start_tkn_index)
         if toc_end_tkn_index is None:
             no_toc_tokens: Sequence[Token] = tokens
@@ -44,18 +49,17 @@ def render_token(
                     tokens[:toc_start_tkn_index], tokens[toc_end_tkn_index + 1 :]
                 )
             )
-        env["mdformat-toc"]["headings"] = load_headings(
-            no_toc_tokens, slug_style=env["mdformat-toc"]["opts"].slug_style
+        env["mdformat-toc"]["headings"] = _load_headings(
+            renderer, no_toc_tokens, options, env
         )
 
-    if not env["mdformat-toc"]["opts"]:
+    opts = env["mdformat-toc"]["opts"]
+    if not opts:
         return None
 
     token = tokens[index]
 
     if _is_toc_start(token):
-        opts = env["mdformat-toc"]["opts"]
-
         text = f"<!-- mdformat-toc start {opts} -->\n\n"
         toc_end_tkn_index = _find_toc_end_token(tokens, index)
         last_consumed_index = (
@@ -71,8 +75,10 @@ def render_token(
 
         return text, last_consumed_index
     if token.type == "heading_open":
-        # TODO: render heading with anchor here
-        return None
+        heading_idx = env["mdformat-toc"]["rendered_headings"]
+        heading = env["mdformat-toc"]["headings"].headings[heading_idx]
+        env["mdformat-toc"]["rendered_headings"] += 1
+        return heading.markdown, _index_closing_token(tokens, index)
     return None
 
 
@@ -115,6 +121,7 @@ class _Heading(NamedTuple):
     level: int
     text: str
     slug: str
+    markdown: str
 
 
 def _render_toc(
@@ -126,12 +133,12 @@ def _render_toc(
     toc = ""
 
     # Filter unwanted heading levels
-    headings = _HeadingTree(
+    heading_tree = _HeadingTree(
         h for h in heading_tree.headings if minlevel <= h.level <= maxlevel
     )
 
-    for heading in headings.headings:
-        indentation = "  " * headings.get_indentation_level(heading)
+    for heading in heading_tree.headings:
+        indentation = "  " * heading_tree.get_indentation_level(heading)
         toc += f"{indentation}- [{heading.text}](<#{heading.slug}>)\n"
 
     return toc
@@ -208,13 +215,21 @@ class _Args:
                 if style in SLUG_FUNCS:
                     self.slug_style = style
 
+        self.anchors = "--no-anchors" not in args_seq
+
     def __str__(self) -> str:
         """Return a string that when str.split() and passed to _Args.__init__,
         will reconstruct an equivalent object."""
-        return f"--slug={self.slug_style} " + " ".join(
+        args_str = f"--slug={self.slug_style}"
+        if not self.anchors:
+            args_str += " --no-anchors"
+        int_args_str = " ".join(
             f"--{int_arg_name}={getattr(self, int_arg_name)}"
             for int_arg_name in self._int_args_names
         )
+        if int_args_str:
+            args_str += " " + int_args_str
+        return args_str
 
     @staticmethod
     def from_start_token(token: Token) -> _Args:
@@ -223,16 +238,28 @@ class _Args:
         return _Args(opts)
 
 
-def load_headings(tokens: Sequence[Token], *, slug_style: str) -> _HeadingTree:
-    unique_slugify = get_unique_slugify(SLUG_FUNCS[slug_style])
+def _load_headings(
+    renderer: MDRenderer, tokens: Sequence[Token], options: Mapping[str, Any], env: dict
+) -> _HeadingTree:
+    toc_opts = env["mdformat-toc"]["opts"]
+    unique_slugify = get_unique_slugify(SLUG_FUNCS[toc_opts.slug_style])
     headings = []
     for i, tkn in enumerate(tokens):
         if tkn.type != "heading_open":
             continue
+        level = int(tkn.tag[1:])
+
+        # Copy heading tokens so we can safely mutate them
+        heading_tokens = _copy_heading_tokens(tokens, i)
+        if (
+            env["mdformat-toc"]["opts"].anchors
+            and toc_opts.minlevel <= level <= toc_opts.maxlevel
+        ):
+            _ensure_anchors_in_place(heading_tokens)
 
         # Collect heading text from the children of the inline token
         heading_text = ""
-        for child in tokens[i + 1].children:
+        for child in heading_tokens[1].children:
             if child.type == "text":
                 heading_text += child.content
             elif child.type == "code_inline":
@@ -240,12 +267,81 @@ def load_headings(tokens: Sequence[Token], *, slug_style: str) -> _HeadingTree:
         # There can be newlines in setext headers. Convert newlines to spaces.
         heading_text = heading_text.replace("\n", " ").rstrip()
 
+        slug = unique_slugify(heading_text)
+
+        # Place the correct slug in tokens so that it is included in
+        # the rendered Markdown
+        for child in heading_tokens[1].children:
+            if child.type == "html_inline" and child.content == '<a name="{slug}">':
+                child.content = child.content.format(slug=slug)
+
+        # Render heading Markdown (with mdformat-toc disabled)
+        options["parser_extension"].remove(mdformat_toc.plugin)
+        heading_md = renderer.render(heading_tokens, options, env, finalize=False)
+        options["parser_extension"].append(mdformat_toc.plugin)
+
         headings.append(
             _Heading(
-                level=int(tkn.tag[1:]),
+                level=level,
                 text=heading_text,
-                slug=unique_slugify(heading_text),
+                slug=slug,
+                markdown=heading_md,
             )
         )
 
     return _HeadingTree(headings)
+
+
+def _copy_heading_tokens(
+    tokens: Sequence[Token], opening_index: int
+) -> Sequence[Token]:
+    closing_index = _index_closing_token(tokens, opening_index)
+    return copy.deepcopy(tokens[opening_index : closing_index + 1])
+
+
+def _index_closing_token(tokens: Sequence[Token], opening_index: int) -> int:
+    opening_token = tokens[opening_index]
+    assert opening_token.nesting == 1, "Cant find closing token for non opening token"
+    for i in range(opening_index + 1, len(tokens)):
+        closing_candidate = tokens[i]
+        if closing_candidate.level == opening_token.level:
+            return i
+    raise ValueError("Invalid token list. Closing token not found.")
+
+
+def _ensure_anchors_in_place(heading_tokens: Sequence[Token]) -> None:
+    # Remove possible existing anchor
+    anchor_start_idx = None
+    anchor_end_idx = None
+    inline_root = heading_tokens[1]
+    for child_idx, child_tkn in enumerate(inline_root.children):
+        if child_tkn.type != "html_inline":
+            continue
+        if re.match(r"<a\s", child_tkn.content):
+            anchor_start_idx = child_idx
+            anchor_end_idx = child_idx
+        if anchor_start_idx is not None and child_tkn.content == "</a>":
+            anchor_end_idx = child_idx
+    if anchor_start_idx is not None:
+        assert anchor_end_idx is not None
+        inline_root.children = (
+            inline_root.children[:anchor_start_idx]
+            + inline_root.children[anchor_end_idx + 1 :]
+        )
+        # Remove trailing whitespace from the heading
+        if (
+            anchor_start_idx != 0
+            and inline_root.children[anchor_start_idx - 1].type == "text"
+        ):
+            inline_root.children[anchor_start_idx - 1].content = inline_root.children[
+                anchor_start_idx - 1
+            ].content.rstrip()
+
+    # Add the type of anchor we want
+    anchor_text = ""
+    link_tokens = [
+        Token("html_inline", "", 0, content='<a name="{slug}">'),
+        Token("text", "", 0, content=anchor_text),
+        Token("html_inline", "", 0, content="</a>"),
+    ]
+    inline_root.children += link_tokens

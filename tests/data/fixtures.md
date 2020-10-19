@@ -1,9 +1,9 @@
 HTML in heading
 .
-<!-- mdformat-toc start -->
+<!-- mdformat-toc start --no-anchors -->
 # HTML here `<h1>lol</h1>`
 .
-<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
+<!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
 
 - [HTML here `<h1>lol</h1>`](<#html-here-h1lolh1>)
 
@@ -14,13 +14,13 @@ HTML in heading
 
 Duplicate title
 .
-<!-- mdformat-toc start -->
+<!-- mdformat-toc start --no-anchors -->
 # Same name
 # Same name
 ## Same name
 ### Same name
 .
-<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
+<!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
 
 - [Same name](<#same-name>)
 - [Same name](<#same-name-1>)
@@ -40,14 +40,14 @@ Duplicate title
 
 Level restrictions
 .
-<!-- mdformat-toc start --minlevel=2 --maxlevel=3 -->
+<!-- mdformat-toc start --no-anchors --minlevel=2 --maxlevel=3 -->
 
 # Level 1
 ## Level 2
 ### Level 3
 #### Level 4
 .
-<!-- mdformat-toc start --slug=github --maxlevel=3 --minlevel=2 -->
+<!-- mdformat-toc start --slug=github --no-anchors --maxlevel=3 --minlevel=2 -->
 
 - [Level 2](<#level-2>)
   - [Level 3](<#level-3>)
@@ -81,7 +81,7 @@ No TOC in this file.
 
 Missing heading levels
 .
-<!-- mdformat-toc start -->
+<!-- mdformat-toc start --no-anchors -->
 
 Level 1
 =======
@@ -94,7 +94,7 @@ Level 1
 
 # Level 1
 .
-<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
+<!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
 
 - [Level 1](<#level-1>)
   - [Level  zwei](<#level--zwei>)
@@ -117,15 +117,84 @@ Level 1
 
 Gitlab slug
 .
-<!-- mdformat-toc start --slug=gitlab -->
+<!-- mdformat-toc start --slug=gitlab --no-anchors -->
 
 # Gitlab slug reduces-------hyphens
 .
-<!-- mdformat-toc start --slug=gitlab --maxlevel=6 --minlevel=1 -->
+<!-- mdformat-toc start --slug=gitlab --no-anchors --maxlevel=6 --minlevel=1 -->
 
 - [Gitlab slug reduces-------hyphens](<#gitlab-slug-reduces-hyphens>)
 
 <!-- mdformat-toc end -->
 
 # Gitlab slug reduces\-\-\-\-\-\--hyphens
+.
+
+Add anchors
+.
+<!-- mdformat-toc start -->
+
+## This title has an anchor
+# This title too
+.
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
+
+- [This title has an anchor](<#this-title-has-an-anchor>)
+- [This title too](<#this-title-too>)
+
+<!-- mdformat-toc end -->
+
+## This title has an anchor<a name="this-title-has-an-anchor"></a>
+
+# This title too<a name="this-title-too"></a>
+.
+
+Anchors already in place
+.
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
+
+- [This title has an anchor](<#this-title-has-an-anchor>)
+- [This title too](<#this-title-too>)
+
+<!-- mdformat-toc end -->
+
+## This title has an anchor<a name="this-title-has-an-anchor"></a>
+
+# This title too<a name="this-title-too"></a>
+.
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
+
+- [This title has an anchor](<#this-title-has-an-anchor>)
+- [This title too](<#this-title-too>)
+
+<!-- mdformat-toc end -->
+
+## This title has an anchor<a name="this-title-has-an-anchor"></a>
+
+# This title too<a name="this-title-too"></a>
+.
+
+Anchors only on ToC levels
+.
+<!-- mdformat-toc start --maxlevel=3 --minlevel=2 -->
+
+# Title
+## Anchor pls
+### Title
+#### No more anchors
+.
+<!-- mdformat-toc start --slug=github --maxlevel=3 --minlevel=2 -->
+
+- [Anchor pls](<#anchor-pls>)
+  - [Title](<#title-1>)
+
+<!-- mdformat-toc end -->
+
+# Title
+
+## Anchor pls<a name="anchor-pls"></a>
+
+### Title<a name="title-1"></a>
+
+#### No more anchors
 .
