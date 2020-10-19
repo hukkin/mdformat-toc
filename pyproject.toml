@@ -30,7 +30,7 @@ packages = [
 "toc" = "mdformat_toc.plugin"
 
 [tool.poetry.dependencies]
-python = "^3.6"
+python = "^3.7"
 mdformat = ">=0.3.3"
 
 [tool.poetry.dev-dependencies]
