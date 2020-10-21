@@ -1,6 +1,6 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: e1668fe86af3810fbca72b8653fe478e66a0afdc  # frozen: v3.2.0
+  rev: 9136088a246768144165fcc3ecc3d31bb686920a  # frozen: v3.3.0
   hooks:
   - id: check-yaml
   - id: check-toml
@@ -30,7 +30,7 @@ repos:
   hooks:
   - id: docformatter
 - repo: https://github.com/executablebooks/mdformat
-  rev: 515aea9b6a0132845c6068fd0440c35e38cfd269  # frozen: 0.3.4
+  rev: af7af3fddb6357f4ec7b2fa68de01fe06819d986  # frozen: 0.3.5
   hooks:
   - id: mdformat
     files: 'README.md'

@@ -104,7 +104,7 @@ python-versions = "*"
 
 [[package]]
 name = "markdown-it-py"
-version = "0.5.5"
+version = "0.5.6"
 description = "Python port of markdown-it. Markdown parsing, done right!"
 category = "main"
 optional = false
@@ -115,13 +115,13 @@ attrs = ">=19,<21"
 
 [package.extras]
 code_style = ["pre-commit (2.6)"]
-compare = ["commonmark (>=0.9.1,<0.10.0)", "markdown (>=3.2,<4.0)", "mistune (>=0.8.4,<0.9.0)", "mistletoe-ebp (>=0.10.0,<0.11.0)", "panflute (>=1.12,<2.0)"]
+compare = ["commonmark (>=0.9.1,<0.10.0)", "markdown (>=3.2.2,<3.3.0)", "mistune (>=0.8.4,<0.9.0)", "mistletoe-ebp (>=0.10.0,<0.11.0)", "panflute (>=1.12,<2.0)"]
 rtd = ["myst-nb (>=0.10.0,<0.11.0)", "sphinx-book-theme", "sphinx-panels (>=0.4.0,<0.5.0)", "sphinx-copybutton", "sphinx (>=2,<4)", "pyyaml"]
 testing = ["coverage", "pytest (>=3.6,<4)", "pytest-cov", "pytest-regressions", "pytest-benchmark (>=3.2,<4.0)", "psutil"]
 
 [[package]]
 name = "mdformat"
-version = "0.3.4"
+version = "0.4.0"
 description = "CommonMark compliant Markdown formatter"
 category = "main"
 optional = false
@@ -379,12 +379,12 @@ iniconfig = [
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
 ]
 markdown-it-py = [
-    {file = "markdown-it-py-0.5.5.tar.gz", hash = "sha256:0513fcc7300b6b1da7713c11b018336eeda12eddf49cbfde0865a5febfa27758"},
-    {file = "markdown_it_py-0.5.5-py3-none-any.whl", hash = "sha256:62de2951c83764b234304bc48fd68d21bb0495051845061c2cb66952afe069c3"},
+    {file = "markdown-it-py-0.5.6.tar.gz", hash = "sha256:6143d11221495edbf71beb7e455821ae6c8f0156710a1b11812662ed6dbd165b"},
+    {file = "markdown_it_py-0.5.6-py3-none-any.whl", hash = "sha256:dcfe4a0c6bef711cb6c42494ebf23a3cfe6f249bf995556498497dd8193bfc22"},
 ]
 mdformat = [
-    {file = "mdformat-0.3.4-py3-none-any.whl", hash = "sha256:5f6507632dbae69092f3451ac28d3320d62b56d2778a162cc35edab917aa9766"},
-    {file = "mdformat-0.3.4.tar.gz", hash = "sha256:184181bcadca539ccbd7d3bc40e27351dedae3d32c259335a5843e3853fa024f"},
+    {file = "mdformat-0.4.0-py3-none-any.whl", hash = "sha256:021bc9031108aa1c011fffdfea72828bd322c5beddf518933a3923ac41f655cb"},
+    {file = "mdformat-0.4.0.tar.gz", hash = "sha256:c716ab792def0779e4ef680bba7003eba34a5c967a475b16263e00451e6bedbb"},
 ]
 mypy = [
     {file = "mypy-0.790-cp35-cp35m-macosx_10_6_x86_64.whl", hash = "sha256:bd03b3cf666bff8d710d633d1c56ab7facbdc204d567715cb3b9f85c6e94f669"},
