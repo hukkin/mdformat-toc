@@ -1,11 +1,11 @@
-[![Build Status](<https://github.com/hukkinj1/mdformat-toc/workflows/Tests/badge.svg?branch=master>)](<https://github.com/hukkinj1/mdformat-toc/actions?query=workflow%3ATests+branch%3Amaster+event%3Apush>)
-[![PyPI version](<https://img.shields.io/pypi/v/mdformat-toc>)](<https://pypi.org/project/mdformat-toc>)
+[![Build Status](https://github.com/hukkinj1/mdformat-toc/workflows/Tests/badge.svg?branch=master)](https://github.com/hukkinj1/mdformat-toc/actions?query=workflow%3ATests+branch%3Amaster+event%3Apush)
+[![PyPI version](https://img.shields.io/pypi/v/mdformat-toc)](https://pypi.org/project/mdformat-toc)
 
 # mdformat-toc
 
 > Mdformat plugin to generate a table of contents
 
-**Table of Contents**  *generated with [mdformat-toc](<https://github.com/hukkinj1/mdformat-toc>)*
+**Table of Contents**  *generated with [mdformat-toc](https://github.com/hukkinj1/mdformat-toc)*
 
 <!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=2 -->
 
@@ -21,7 +21,7 @@
 
 ## Description
 
-Mdformat-toc is an [mdformat](<https://github.com/executablebooks/mdformat>) plugin
+Mdformat-toc is an [mdformat](https://github.com/executablebooks/mdformat) plugin
 that adds mdformat the capability to auto-generate a table of contents (ToC).
 The ToC is generated in a user-specified location in the Markdown file.
 
@@ -61,6 +61,8 @@ An indicator line with the default options would look like:
 ```markdown
 <!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
 ```
+
+Placing more than one indicator lines in a document is currently not supported.
 
 #### Minimum and maximum heading levels
 
