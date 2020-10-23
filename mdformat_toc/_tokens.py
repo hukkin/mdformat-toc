@@ -27,8 +27,10 @@ def is_toc_start(token: Token) -> bool:
     return True
 
 
-def find_toc_start_token(tokens: Sequence[Token]) -> Optional[int]:
-    for i, tkn in enumerate(tokens):
+def find_toc_start_token(
+    tokens: Sequence[Token], *, start_from: int = 0
+) -> Optional[int]:
+    for i, tkn in enumerate(tokens[start_from:], start=start_from):
         if is_toc_start(tkn):
             return i
     return None

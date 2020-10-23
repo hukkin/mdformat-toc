@@ -4,7 +4,7 @@ from typing import Any, Mapping, Optional, Sequence, Tuple
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
-from mdformat.renderer import MDRenderer
+from mdformat.renderer import LOGGER, MDRenderer
 
 import mdformat_toc
 from mdformat_toc._heading import Heading, HeadingTree
@@ -34,24 +34,31 @@ def render_token(
 ) -> Optional[Tuple[str, int]]:
     first_pass = "mdformat-toc" not in env
     if first_pass:
-        env["mdformat-toc"] = {"rendered_headings": 0}
+        env["mdformat-toc"] = {"rendered_headings": 0, "opts": None}
 
         # Load ToC options
-        toc_start_tkn_index = find_toc_start_token(tokens)
-        if toc_start_tkn_index is None:
-            env["mdformat-toc"]["opts"] = None
+        toc_start_index = find_toc_start_token(tokens)
+        if toc_start_index is None:
             return None
-        env["mdformat-toc"]["opts"] = Opts.from_start_token(tokens[toc_start_tkn_index])
+        second_toc_start_index = find_toc_start_token(
+            tokens, start_from=toc_start_index + 1
+        )
+        if second_toc_start_index is not None:
+            LOGGER.warning(
+                "Mdformat-toc found more than one ToC indicator lines. "
+                "Only one is supported by the plugin. "
+                "Mdformat-toc disabled."
+            )
+            return None
+        env["mdformat-toc"]["opts"] = Opts.from_start_token(tokens[toc_start_index])
 
         # Load heading structure
-        toc_end_tkn_index = find_toc_end_token(tokens, toc_start_tkn_index)
-        if toc_end_tkn_index is None:
+        toc_end_index = find_toc_end_token(tokens, toc_start_index)
+        if toc_end_index is None:
             no_toc_tokens: Sequence[Token] = tokens
         else:
             no_toc_tokens = tuple(
-                itertools.chain(
-                    tokens[:toc_start_tkn_index], tokens[toc_end_tkn_index + 1 :]
-                )
+                itertools.chain(tokens[:toc_start_index], tokens[toc_end_index + 1 :])
             )
         env["mdformat-toc"]["headings"] = _load_headings(
             renderer, no_toc_tokens, options, env
@@ -65,10 +72,8 @@ def render_token(
 
     if is_toc_start(token):
         text = f"<!-- mdformat-toc start {opts} -->\n\n"
-        toc_end_tkn_index = find_toc_end_token(tokens, index)
-        last_consumed_index = (
-            toc_end_tkn_index if toc_end_tkn_index is not None else index
-        )
+        toc_end_index = find_toc_end_token(tokens, index)
+        last_consumed_index = toc_end_index if toc_end_index is not None else index
 
         text += _render_toc(
             env["mdformat-toc"]["headings"],
