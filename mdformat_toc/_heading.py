@@ -9,8 +9,9 @@ class Heading(NamedTuple):
 
 
 class HeadingTree:
+    _parents: Mapping[Heading, Optional[Heading]]
+
     def __init__(self, headings: Iterable[Heading]):
-        self._parents: Mapping[Heading, Optional[Heading]] = {}
         self.headings = tuple(headings)
 
     @property
@@ -20,12 +21,9 @@ class HeadingTree:
     @headings.setter
     def headings(self, headings: Tuple[Heading, ...]) -> None:
         self._headings = headings
-        self._set_parents()
-
-    def _set_parents(self) -> None:
-        self._parents = {}
-        for i, heading in enumerate(self.headings):
-            self._parents[heading] = self._get_parent(i)
+        self._parents = {
+            heading: self._get_parent(i) for i, heading in enumerate(headings)
+        }
 
     def _get_parent(self, child_idx: int) -> Optional[Heading]:
         child = self.headings[child_idx]

@@ -131,8 +131,12 @@ def _load_headings(
             _ensure_anchors_in_place(heading_tokens)
 
         # Collect heading text from the children of the inline token
+        inline_token = heading_tokens[1]
+        assert (
+            inline_token.children is not None
+        ), "inline token's children must not be None"
         heading_text = ""
-        for child in heading_tokens[1].children:
+        for child in inline_token.children:
             if child.type == "text":
                 heading_text += child.content
             elif child.type == "code_inline":
@@ -144,7 +148,7 @@ def _load_headings(
 
         # Place the correct slug in tokens so that it is included in
         # the rendered Markdown
-        for child in heading_tokens[1].children:
+        for child in inline_token.children:
             if child.type == "html_inline" and child.content == '<a name="{slug}">':
                 child.content = child.content.format(slug=slug)
 
@@ -176,6 +180,7 @@ def _ensure_anchors_in_place(heading_tokens: Sequence[Token]) -> None:
     anchor_start_idx = None
     anchor_end_idx = None
     inline_root = heading_tokens[1]
+    assert inline_root.children is not None, "inline token's children must not be None"
     for child_idx, child_tkn in enumerate(inline_root.children):
         if child_tkn.type != "html_inline":
             continue
