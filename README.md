@@ -26,7 +26,7 @@ that adds mdformat the capability to auto-generate a table of contents (ToC).
 The ToC is generated in a user-specified location in the Markdown file.
 
 Mdformat-toc, by default, creates an HTML anchor for each heading listed in the ToC.
-ToC links should therefore be compatible with any well-behaved Markdown renderer (including GitHub and GitLab).
+ToC links should therefore be compatible with any well-behaved Markdown renderer (including GitLab's renderer).
 
 HTML anchor generation can be disabled, in which case a user should configure a slug function that is compatible with the Markdown renderer used (GitHub and GitLab slug functions are currently supported).
 
@@ -100,11 +100,17 @@ If your Markdown is only hosted on GitHub, you can disable mdformat-toc's HTML a
 
 #### Changing the slug function
 
-By default, the ToC links are GitHub compatible, even without anchors being generated (via the `--no-anchors` flag).
-If you are using GitLab,
-and have disabled anchor generation,
-you will want to add a `--slug=gitlab` argument:
+Mdformat-toc defaults to using GitHub's slug function.
+
+If your Markdown is not hosted on GitHub you may want to use GitLab's slug function instead:
 
 ```markdown
 <!-- mdformat-toc start --slug=gitlab --no-anchors -->
 ```
+
+**NOTE:** Unlike GitLab, GitHub requires using its own slug function in order for ToC links to work expectedly.
+Creating HTML anchors and using a non-GitHub slug function is not GitHub compatible
+because GitHub's Markdown renderer modifies the HTML anchors mdformat-toc creates.
+The default configuration
+(GitHub slug function and anchor generation)
+is the only configuration cross-compatible with GitHub and GitLab.

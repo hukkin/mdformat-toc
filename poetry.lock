@@ -70,7 +70,7 @@ python-versions = "*"
 
 [[package]]
 name = "identify"
-version = "1.5.10"
+version = "1.5.11"
 description = "File identification library for Python"
 category = "dev"
 optional = false
@@ -105,7 +105,7 @@ python-versions = "*"
 
 [[package]]
 name = "markdown-it-py"
-version = "0.6.0"
+version = "0.6.1"
 description = "Python port of markdown-it. Markdown parsing, done right!"
 category = "main"
 optional = false
@@ -119,12 +119,12 @@ mdit-py-plugins = ">=0.2.1,<0.3.0"
 code_style = ["pre-commit (==2.6)"]
 compare = ["commonmark (>=0.9.1,<0.10.0)", "markdown (>=3.2.2,<3.3.0)", "mistune (>=0.8.4,<0.9.0)", "mistletoe-ebp (>=0.10.0,<0.11.0)", "panflute (>=1.12,<2.0)"]
 linkify = ["linkify-it-py (>=1.0,<2.0)"]
-rtd = ["myst-nb (>=0.10.0,<0.11.0)", "sphinx-book-theme", "sphinx-panels (>=0.4.0,<0.5.0)", "sphinx-copybutton", "sphinx (>=2,<4)", "pyyaml"]
+rtd = ["myst-nb (==0.11.0a1)", "sphinx-book-theme", "sphinx-panels (>=0.4.0,<0.5.0)", "sphinx-copybutton", "sphinx (>=2,<4)", "pyyaml"]
 testing = ["coverage", "pytest (>=3.6,<4)", "pytest-cov", "pytest-regressions", "pytest-benchmark (>=3.2,<4.0)", "psutil"]
 
 [[package]]
 name = "mdformat"
-version = "0.5.3"
+version = "0.5.4"
 description = "CommonMark compliant Markdown formatter"
 category = "main"
 optional = false
@@ -383,8 +383,8 @@ filelock = [
     {file = "filelock-3.0.12.tar.gz", hash = "sha256:18d82244ee114f543149c66a6e0c14e9c4f8a1044b5cdaadd0f82159d6a6ff59"},
 ]
 identify = [
-    {file = "identify-1.5.10-py2.py3-none-any.whl", hash = "sha256:cc86e6a9a390879dcc2976cef169dd9cc48843ed70b7380f321d1b118163c60e"},
-    {file = "identify-1.5.10.tar.gz", hash = "sha256:943cd299ac7f5715fcb3f684e2fc1594c1e0f22a90d15398e5888143bd4144b5"},
+    {file = "identify-1.5.11-py2.py3-none-any.whl", hash = "sha256:7aef7a5104d6254c162990e54a203cdc0fd202046b6c415bd5d636472f6565c4"},
+    {file = "identify-1.5.11.tar.gz", hash = "sha256:b2c71bf9f5c482c389cef816f3a15f1c9d7429ad70f497d4a2e522442d80c6de"},
 ]
 importlib-metadata = [
     {file = "importlib_metadata-3.3.0-py3-none-any.whl", hash = "sha256:bf792d480abbd5eda85794e4afb09dd538393f7d6e6ffef6e9f03d2014cf9450"},
@@ -395,12 +395,12 @@ iniconfig = [
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
 ]
 markdown-it-py = [
-    {file = "markdown-it-py-0.6.0.tar.gz", hash = "sha256:1c1413df39ef7baa55bca755d32c565d72e8b4114dcdd3da65eb468a61886659"},
-    {file = "markdown_it_py-0.6.0-py3-none-any.whl", hash = "sha256:f90912a0ff1ac328627d1551bd5a17bce0ef1d483df222d460336e59213c6d29"},
+    {file = "markdown-it-py-0.6.1.tar.gz", hash = "sha256:3ef7346879c931684500cf2ec35c2545b617dd49e8ce3ea4287bb66405913c1a"},
+    {file = "markdown_it_py-0.6.1-py3-none-any.whl", hash = "sha256:f22808fed0fd5c006c5c1626ea4e6c68123d5af54eb54712af77a4c57ad34ebc"},
 ]
 mdformat = [
-    {file = "mdformat-0.5.3-py3-none-any.whl", hash = "sha256:082d7645c61d215879a3d63867e5923d8ec121f59a837fd49e41865a7b69c3fa"},
-    {file = "mdformat-0.5.3.tar.gz", hash = "sha256:3916413ba2187422276287045745d8538cec4434bd3bee3c6fc0089552827e3d"},
+    {file = "mdformat-0.5.4-py3-none-any.whl", hash = "sha256:c791fd86571f85471489440f532ad8e7ca0396bd588d6a7a3b3e0e879cefcc5e"},
+    {file = "mdformat-0.5.4.tar.gz", hash = "sha256:a8e69498d963ce56a81d1c063a50cc72e33436ad02a378a018c5f0f07789a0bd"},
 ]
 mdit-py-plugins = [
     {file = "mdit-py-plugins-0.2.4.tar.gz", hash = "sha256:e7db0de4a3466941faa433f77a98d09a09a0b877e79eace79506fd0d083e490f"},
