@@ -1,6 +1,9 @@
+from __future__ import annotations
+
+from collections.abc import Mapping, Sequence
 import itertools
 import re
-from typing import Any, Mapping, Optional, Sequence, Tuple
+from typing import Any
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
@@ -31,7 +34,7 @@ def render_token(
     index: int,
     options: Mapping[str, Any],
     env: dict,
-) -> Optional[Tuple[str, int]]:
+) -> tuple[str, int] | None:
     first_pass = "mdformat-toc" not in env
     if first_pass:
         env["mdformat-toc"] = {"rendered_headings": 0, "opts": None}

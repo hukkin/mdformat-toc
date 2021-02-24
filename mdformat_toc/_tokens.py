@@ -1,12 +1,14 @@
 """A namespace for functions that process tokens (i.e. markdown_it.token.Token)
 and token streams."""
+from __future__ import annotations
+
+from collections.abc import Sequence
 import copy
-from typing import List, Optional, Sequence
 
 from markdown_it.token import Token
 
 
-def get_args_sequence(token: Token) -> List[str]:
+def get_args_sequence(token: Token) -> list[str]:
     assert token.type == "html_block"
     args_str = token.content.rstrip("\n")
     if args_str.startswith("<!--"):
@@ -27,16 +29,14 @@ def is_toc_start(token: Token) -> bool:
     return True
 
 
-def find_toc_start_token(
-    tokens: Sequence[Token], *, start_from: int = 0
-) -> Optional[int]:
+def find_toc_start_token(tokens: Sequence[Token], *, start_from: int = 0) -> int | None:
     for i, tkn in enumerate(tokens[start_from:], start=start_from):
         if is_toc_start(tkn):
             return i
     return None
 
 
-def find_toc_end_token(tokens: Sequence[Token], start_index: int) -> Optional[int]:
+def find_toc_end_token(tokens: Sequence[Token], start_index: int) -> int | None:
     start_tkn = tokens[start_index]
     for i in range(start_index + 1, len(tokens)):
         tkn = tokens[i]

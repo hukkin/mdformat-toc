@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 import collections
+from collections.abc import Callable, Mapping
 import re
-from typing import Callable, Counter, Mapping
 import urllib.parse
 
 
 def get_unique_slugify(slug_func: Callable[[str, int], str]) -> Callable[[str], str]:
-    title_counts: Counter[str] = collections.Counter()
+    title_counts: collections.Counter[str] = collections.Counter()
 
     def unique_slugify(title: str) -> str:
         slug = slug_func(title, title_counts[title])

@@ -1,4 +1,7 @@
-from typing import Iterable, Mapping, NamedTuple, Optional, Tuple
+from __future__ import annotations
+
+from collections.abc import Iterable, Mapping
+from typing import NamedTuple
 
 
 class Heading(NamedTuple):
@@ -9,23 +12,23 @@ class Heading(NamedTuple):
 
 
 class HeadingTree:
-    _parents: Mapping[Heading, Optional[Heading]]
+    _parents: Mapping[Heading, Heading | None]
 
     def __init__(self, headings: Iterable[Heading]):
         self.headings = tuple(headings)
 
     @property
-    def headings(self) -> Tuple[Heading, ...]:
+    def headings(self) -> tuple[Heading, ...]:
         return self._headings
 
     @headings.setter
-    def headings(self, headings: Tuple[Heading, ...]) -> None:
+    def headings(self, headings: tuple[Heading, ...]) -> None:
         self._headings = headings
         self._parents = {
             heading: self._get_parent(i) for i, heading in enumerate(headings)
         }
 
-    def _get_parent(self, child_idx: int) -> Optional[Heading]:
+    def _get_parent(self, child_idx: int) -> Heading | None:
         child = self.headings[child_idx]
         for i in reversed(range(child_idx)):
             if self.headings[i].level < child.level:
