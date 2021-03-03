@@ -110,7 +110,7 @@ Level 1
 
 ## Level 2 ., Azwei
 
-## Level 2 .+ Az//&w\_äöe-i
+## Level 2 .+ Az//&w_äöe-i
 
 # Level 1
 .
@@ -127,7 +127,7 @@ Gitlab slug
 
 <!-- mdformat-toc end -->
 
-# Gitlab slug reduces\-\-\-\-\-\--hyphens
+# Gitlab slug reduces-------hyphens
 .
 
 Add anchors
