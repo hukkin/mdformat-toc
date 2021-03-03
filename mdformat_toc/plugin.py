@@ -41,6 +41,7 @@ def _init_toc(
     options found. Returns `True` if valid ToC options were found, else
     returns `False`.
     """
+    assert root.type == "root"
     env["mdformat-toc"] = {"rendered_headings": 0, "opts": None}
 
     tokens = root.to_tokens()
@@ -76,6 +77,7 @@ def _init_toc(
 
 
 def _toc_enabled(env: MutableMapping) -> bool:
+    """Is there a valid ToC definition in the Markdown?"""
     opts = env["mdformat-toc"]["opts"]
     return bool(opts)
 
@@ -88,15 +90,18 @@ def _render_root(
 ) -> str:
     toc_enabled = _init_toc(node, renderer_funcs, options, env)
     if toc_enabled:
+        # Remove ToC related nodes (besides ToC start node) from the tree.
+        # We regenerate and render an up-to-date ToC every time, so if the
+        # old nodes are there, the ToC will be rendered twice.
         (toc_start_node,) = find_toc_start_nodes(node)
         assert toc_start_node.parent is not None, "toc start cant be root"
         toc_end_node = find_toc_end_sibling(toc_start_node)
         if toc_end_node:
-            toc_start_index = toc_start_node.siblings.index(toc_start_node)
-            toc_end_index = toc_start_node.siblings.index(toc_end_node)
+            siblings = toc_start_node.parent.children
+            toc_start_index = siblings.index(toc_start_node)
+            toc_end_index = siblings.index(toc_end_node)
             toc_start_node.parent.children = (
-                toc_start_node.parent.children[: toc_start_index + 1]
-                + toc_start_node.parent.children[toc_end_index + 1 :]
+                siblings[: toc_start_index + 1] + siblings[toc_end_index + 1 :]
             )
     return DEFAULT_RENDERER_FUNCS["root"](node, renderer_funcs, options, env)
 
@@ -127,8 +132,6 @@ def _render_html_block(
 
     opts = env["mdformat-toc"]["opts"]
     text = f"<!-- mdformat-toc start {opts} -->\n\n"
-    # toc_end_index = find_toc_end_token(tokens, index)
-    # last_consumed_index = toc_end_index if toc_end_index is not None else index
 
     text += _render_toc(
         env["mdformat-toc"]["headings"],
@@ -213,10 +216,8 @@ def _load_headings(
 
         # Render heading Markdown (with mdformat-toc disabled)
         toc_disabled_renderer_funcs = {
-            **renderer_funcs,
-            "heading": DEFAULT_RENDERER_FUNCS["heading"],
-            "html_block": DEFAULT_RENDERER_FUNCS["html_block"],
-            "root": DEFAULT_RENDERER_FUNCS["root"],
+            name: DEFAULT_RENDERER_FUNCS[name] if name in RENDERER_FUNCS else func
+            for name, func in renderer_funcs.items()
         }
         heading_md = RenderTreeNode(heading_tokens).render(
             toc_disabled_renderer_funcs, options, env
