@@ -9,17 +9,7 @@ from markdown_it.token import Token
 from mdformat.renderer import RenderTreeNode
 
 
-def get_args_sequence(token: Token) -> list[str]:
-    assert token.type == "html_block"
-    args_str = token.content.rstrip("\n")
-    if args_str.startswith("<!--"):
-        args_str = args_str[4:]
-    if args_str.endswith("-->"):
-        args_str = args_str[:-3]
-    return args_str.split()
-
-
-def get_args_sequence_from_node(node: RenderTreeNode) -> list[str]:
+def get_args_sequence(node: RenderTreeNode) -> list[str]:
     assert node.type == "html_block"
     args_str = node.content.rstrip("\n")
     if args_str.startswith("<!--"):
@@ -29,33 +19,15 @@ def get_args_sequence_from_node(node: RenderTreeNode) -> list[str]:
     return args_str.split()
 
 
-def is_toc_start(token: Token) -> bool:
-    if token.type != "html_block":
-        return False
-    args_seq = get_args_sequence(token)
-    if len(args_seq) < 2:
-        return False
-    if args_seq[0].lower() != "mdformat-toc" or args_seq[1].lower() != "start":
-        return False
-    return True
-
-
 def is_toc_start_node(node: RenderTreeNode) -> bool:
     if node.type != "html_block":
         return False
-    args_seq = get_args_sequence_from_node(node)
+    args_seq = get_args_sequence(node)
     if len(args_seq) < 2:
         return False
     if args_seq[0].lower() != "mdformat-toc" or args_seq[1].lower() != "start":
         return False
     return True
-
-
-def find_toc_start_token(tokens: Sequence[Token], *, start_from: int = 0) -> int | None:
-    for i, tkn in enumerate(tokens[start_from:], start=start_from):
-        if is_toc_start(tkn):
-            return i
-    return None
 
 
 def find_toc_start_nodes(node: RenderTreeNode) -> list[RenderTreeNode]:
@@ -77,27 +49,11 @@ def for_all_nodes(
         for_all_nodes(child, action)
 
 
-def find_toc_end_token(tokens: Sequence[Token], start_index: int) -> int | None:
-    start_tkn = tokens[start_index]
-    for i in range(start_index + 1, len(tokens)):
-        tkn = tokens[i]
-        if tkn.type != "html_block" or tkn.level != start_tkn.level:
-            continue
-        args_seq = get_args_sequence(tkn)
-        if (
-            len(args_seq) >= 2
-            and args_seq[0].lower() == "mdformat-toc"
-            and args_seq[1].lower() == "end"
-        ):
-            return i
-    return None
-
-
 def find_toc_end_sibling(node: RenderTreeNode) -> RenderTreeNode | None:
     sibling = node.next_sibling
     while sibling:
         if sibling.type == "html_block":
-            args_seq = get_args_sequence_from_node(sibling)
+            args_seq = get_args_sequence(sibling)
             if (
                 len(args_seq) >= 2
                 and args_seq[0].lower() == "mdformat-toc"

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 
-from markdown_it.token import Token
+from mdformat.renderer import RenderTreeNode
 
 from mdformat_toc._tokens import get_args_sequence
 from mdformat_toc.slug import SLUG_FUNCS
@@ -52,7 +52,7 @@ class Opts:
         return args_str
 
     @staticmethod
-    def from_start_token(token: Token) -> Opts:
-        args_seq = get_args_sequence(token)
+    def from_start_node(node: RenderTreeNode) -> Opts:
+        args_seq = get_args_sequence(node)
         opts = args_seq[2:]
         return Opts(opts)

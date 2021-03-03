@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from collections.abc import Mapping, MutableMapping, Sequence
-import itertools
 import re
 from typing import Any
 
@@ -15,9 +14,7 @@ from mdformat_toc._options import Opts
 from mdformat_toc._tokens import (
     copy_block_tokens,
     find_toc_end_sibling,
-    find_toc_end_token,
     find_toc_start_nodes,
-    find_toc_start_token,
     is_toc_start_node,
 )
 from mdformat_toc.slug import SLUG_FUNCS, get_unique_slugify
@@ -34,46 +31,44 @@ def _init_toc(
     renderer_funcs: Mapping[str, RendererFunc],
     options: Mapping[str, Any],
     env: MutableMapping,
-) -> bool:
+) -> None:
     """Initialize ToC plugin.
 
     Store ToC options and heading structure in `env` if valid ToC
-    options found. Returns `True` if valid ToC options were found, else
-    returns `False`.
+    options found.
     """
     assert root.type == "root"
     env["mdformat-toc"] = {"rendered_headings": 0, "opts": None}
 
-    tokens = root.to_tokens()
-
     # Load ToC options
-    toc_start_index = find_toc_start_token(tokens)
-    if toc_start_index is None:
-        return False
-    second_toc_start_index = find_toc_start_token(
-        tokens, start_from=toc_start_index + 1
-    )
-    if second_toc_start_index is not None:
+    toc_start_nodes = find_toc_start_nodes(root)
+    if not toc_start_nodes:
+        return
+    if len(toc_start_nodes) > 1:
         LOGGER.warning(
             "Mdformat-toc found more than one ToC indicator lines. "
             "Only one is supported by the plugin. "
             "Mdformat-toc disabled."
         )
-        return False
-    env["mdformat-toc"]["opts"] = Opts.from_start_token(tokens[toc_start_index])
+        return
+    (toc_start_node,) = toc_start_nodes
+    env["mdformat-toc"]["opts"] = Opts.from_start_node(toc_start_node)
+
+    # Remove ToC related nodes (besides ToC start node) from the tree.
+    # We regenerate and render an up-to-date ToC every time, so if the
+    # old nodes are there, the ToC will be rendered twice.
+    assert toc_start_node.parent is not None, "toc start cant be root"
+    toc_end_node = find_toc_end_sibling(toc_start_node)
+    if toc_end_node:
+        siblings = toc_start_node.parent.children
+        toc_start_index = siblings.index(toc_start_node)
+        toc_end_index = siblings.index(toc_end_node)
+        toc_start_node.parent.children = (
+            siblings[: toc_start_index + 1] + siblings[toc_end_index + 1 :]
+        )
 
     # Load heading structure
-    toc_end_index = find_toc_end_token(tokens, toc_start_index)
-    if toc_end_index is None:
-        no_toc_tokens: Sequence[Token] = tokens
-    else:
-        no_toc_tokens = tuple(
-            itertools.chain(tokens[:toc_start_index], tokens[toc_end_index + 1 :])
-        )
-    env["mdformat-toc"]["headings"] = _load_headings(
-        renderer_funcs, no_toc_tokens, options, env
-    )
-    return True
+    env["mdformat-toc"]["headings"] = _load_headings(renderer_funcs, root, options, env)
 
 
 def _toc_enabled(env: MutableMapping) -> bool:
@@ -88,21 +83,7 @@ def _render_root(
     options: Mapping[str, Any],
     env: MutableMapping,
 ) -> str:
-    toc_enabled = _init_toc(node, renderer_funcs, options, env)
-    if toc_enabled:
-        # Remove ToC related nodes (besides ToC start node) from the tree.
-        # We regenerate and render an up-to-date ToC every time, so if the
-        # old nodes are there, the ToC will be rendered twice.
-        (toc_start_node,) = find_toc_start_nodes(node)
-        assert toc_start_node.parent is not None, "toc start cant be root"
-        toc_end_node = find_toc_end_sibling(toc_start_node)
-        if toc_end_node:
-            siblings = toc_start_node.parent.children
-            toc_start_index = siblings.index(toc_start_node)
-            toc_end_index = siblings.index(toc_end_node)
-            toc_start_node.parent.children = (
-                siblings[: toc_start_index + 1] + siblings[toc_end_index + 1 :]
-            )
+    _init_toc(node, renderer_funcs, options, env)
     return DEFAULT_RENDERER_FUNCS["root"](node, renderer_funcs, options, env)
 
 
@@ -172,10 +153,11 @@ def _render_toc(
 
 def _load_headings(
     renderer_funcs: Mapping[str, RendererFunc],
-    tokens: Sequence[Token],
+    root: RenderTreeNode,
     options: Mapping[str, Any],
     env: MutableMapping,
 ) -> HeadingTree:
+    tokens = root.to_tokens()
     toc_opts = env["mdformat-toc"]["opts"]
     unique_slugify = get_unique_slugify(SLUG_FUNCS[toc_opts.slug_style])
     headings = []
