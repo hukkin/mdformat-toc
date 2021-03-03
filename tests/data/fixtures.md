@@ -81,6 +81,8 @@ No TOC in this file.
 
 Missing heading levels
 .
+<!-- Heading structure is not logical -->
+
 <!-- mdformat-toc start --no-anchors -->
 
 Level 1
@@ -94,6 +96,8 @@ Level 1
 
 # Level 1
 .
+<!-- Heading structure is not logical -->
+
 <!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
 
 - [Level 1](<#level-1>)

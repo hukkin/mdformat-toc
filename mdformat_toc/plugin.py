@@ -94,7 +94,7 @@ def _render_heading(
     env: MutableMapping,
 ) -> str:
     if not _toc_enabled(env):
-        DEFAULT_RENDERER_FUNCS["heading"](node, renderer_funcs, options, env)
+        return DEFAULT_RENDERER_FUNCS["heading"](node, renderer_funcs, options, env)
 
     heading_idx = env["mdformat-toc"]["rendered_headings"]
     heading = env["mdformat-toc"]["headings"].headings[heading_idx]
@@ -109,7 +109,7 @@ def _render_html_block(
     env: MutableMapping,
 ) -> str:
     if not _toc_enabled(env) or not is_toc_start_node(node):
-        DEFAULT_RENDERER_FUNCS["html_block"](node, renderer_funcs, options, env)
+        return DEFAULT_RENDERER_FUNCS["html_block"](node, renderer_funcs, options, env)
 
     opts = env["mdformat-toc"]["opts"]
     text = f"<!-- mdformat-toc start {opts} -->\n\n"
