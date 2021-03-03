@@ -31,10 +31,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-# TODO: remove markdown-it-py dependency and make mdformat a PyPI dependency
-markdown-it-py = { git = "https://github.com/hukkinj1/markdown-it-py.git", branch = "tree-types" }
-mdformat = { git = "https://github.com/executablebooks/mdformat.git", branch = "tree-structure" }
-#mdformat = ">=0.3.5,<0.6.0"
+mdformat = ">=0.6.0"
 
 [tool.poetry.dev-dependencies]
 # Tests

@@ -110,7 +110,6 @@ description = "Python port of markdown-it. Markdown parsing, done right!"
 category = "main"
 optional = false
 python-versions = "~=3.6"
-develop = false
 
 [package.dependencies]
 attrs = ">=19,<21"
@@ -123,31 +122,18 @@ linkify = ["linkify-it-py (>=1.0,<2.0)"]
 rtd = ["myst-nb (>=0.11.1,<0.12.0)", "sphinx-book-theme", "sphinx-panels (>=0.4.0,<0.5.0)", "sphinx-copybutton", "sphinx (>=2,<4)", "pyyaml"]
 testing = ["coverage", "pytest (>=3.6,<4)", "pytest-cov", "pytest-regressions", "pytest-benchmark (>=3.2,<4.0)", "psutil"]
 
-[package.source]
-type = "git"
-url = "https://github.com/hukkinj1/markdown-it-py.git"
-reference = "tree-types"
-resolved_reference = "fce3d214efc686b03907eea1d543a59edb944e03"
-
 [[package]]
 name = "mdformat"
-version = "0.5.7"
+version = "0.6.0"
 description = "CommonMark compliant Markdown formatter"
 category = "main"
 optional = false
-python-versions = "^3.6.1"
-develop = false
+python-versions = ">=3.6.1,<4.0.0"
 
 [package.dependencies]
 importlib-metadata = {version = ">=0.12", markers = "python_version < \"3.8\""}
-markdown-it-py = "branch tree-types"
+markdown-it-py = ">=0.5.5"
 typing-extensions = {version = "*", markers = "python_version < \"3.8\""}
-
-[package.source]
-type = "git"
-url = "https://github.com/executablebooks/mdformat.git"
-reference = "tree-structure"
-resolved_reference = "54beed787f76837bdcbf3266f7d2bc1ae6f57146"
 
 [[package]]
 name = "mdit-py-plugins"
@@ -362,7 +348,7 @@ testing = ["pytest (>=3.5,!=3.7.3)", "pytest-checkdocs (>=1.2.3)", "pytest-flake
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "abb344e74620fce915b0b2b221b726ccb81a005050f093fd78a5ab1da3879fe4"
+content-hash = "57bbd109cfacf77a962ffcc2be528639f774104925e645a68e5567d5e6294a35"
 
 [metadata.files]
 appdirs = [
@@ -408,8 +394,14 @@ iniconfig = [
     {file = "iniconfig-1.1.1-py2.py3-none-any.whl", hash = "sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3"},
     {file = "iniconfig-1.1.1.tar.gz", hash = "sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32"},
 ]
-markdown-it-py = []
-mdformat = []
+markdown-it-py = [
+    {file = "markdown-it-py-0.6.2.tar.gz", hash = "sha256:c3b9f995be0792cbbc8ab2f53d74072eb7ff8a8b622be8d61d38ab879709eca3"},
+    {file = "markdown_it_py-0.6.2-py3-none-any.whl", hash = "sha256:30b3e9f8198dc82a5df0dcb73fd31d56cd9a43bf8a747feb10b2ba74f962bcb1"},
+]
+mdformat = [
+    {file = "mdformat-0.6.0-py3-none-any.whl", hash = "sha256:79606d0a1d57e97a842745735eebbaaf8116bdeb2e01f9541ca402b57011e9c6"},
+    {file = "mdformat-0.6.0.tar.gz", hash = "sha256:e839214df5910546193e42048ee04e3a7fb1ac5eb67035f75d64ae8d52cc1174"},
+]
 mdit-py-plugins = [
     {file = "mdit-py-plugins-0.2.5.tar.gz", hash = "sha256:06dbda99e7d81184c4f6de7c7e3409b29f5cef35404beed6feaf624646219bf5"},
     {file = "mdit_py_plugins-0.2.5-py3-none-any.whl", hash = "sha256:3c78db5cfdcf8f55f0af2b096de391bffcef0b3600222f434efb016d7c267cec"},

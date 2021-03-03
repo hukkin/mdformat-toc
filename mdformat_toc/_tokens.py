@@ -2,15 +2,26 @@
 and token streams."""
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 import copy
 
 from markdown_it.token import Token
+from mdformat.renderer import RenderTreeNode
 
 
 def get_args_sequence(token: Token) -> list[str]:
     assert token.type == "html_block"
     args_str = token.content.rstrip("\n")
+    if args_str.startswith("<!--"):
+        args_str = args_str[4:]
+    if args_str.endswith("-->"):
+        args_str = args_str[:-3]
+    return args_str.split()
+
+
+def get_args_sequence_from_node(node: RenderTreeNode) -> list[str]:
+    assert node.type == "html_block"
+    args_str = node.content.rstrip("\n")
     if args_str.startswith("<!--"):
         args_str = args_str[4:]
     if args_str.endswith("-->"):
@@ -29,11 +40,41 @@ def is_toc_start(token: Token) -> bool:
     return True
 
 
+def is_toc_start_node(node: RenderTreeNode) -> bool:
+    if node.type != "html_block":
+        return False
+    args_seq = get_args_sequence_from_node(node)
+    if len(args_seq) < 2:
+        return False
+    if args_seq[0].lower() != "mdformat-toc" or args_seq[1].lower() != "start":
+        return False
+    return True
+
+
 def find_toc_start_token(tokens: Sequence[Token], *, start_from: int = 0) -> int | None:
     for i, tkn in enumerate(tokens[start_from:], start=start_from):
         if is_toc_start(tkn):
             return i
     return None
+
+
+def find_toc_start_nodes(node: RenderTreeNode) -> list[RenderTreeNode]:
+    start_nodes = []
+
+    def append_toc_start(node: RenderTreeNode) -> None:
+        if is_toc_start_node(node):
+            start_nodes.append(node)
+
+    for_all_nodes(node, append_toc_start)
+    return start_nodes
+
+
+def for_all_nodes(
+    node: RenderTreeNode, action: Callable[[RenderTreeNode], None]
+) -> None:
+    action(node)
+    for child in node.children:
+        for_all_nodes(child, action)
 
 
 def find_toc_end_token(tokens: Sequence[Token], start_index: int) -> int | None:
@@ -49,6 +90,21 @@ def find_toc_end_token(tokens: Sequence[Token], start_index: int) -> int | None:
             and args_seq[1].lower() == "end"
         ):
             return i
+    return None
+
+
+def find_toc_end_sibling(node: RenderTreeNode) -> RenderTreeNode | None:
+    sibling = node.next_sibling
+    while sibling:
+        if sibling.type == "html_block":
+            args_seq = get_args_sequence_from_node(sibling)
+            if (
+                len(args_seq) >= 2
+                and args_seq[0].lower() == "mdformat-toc"
+                and args_seq[1].lower() == "end"
+            ):
+                return sibling
+        sibling = sibling.next_sibling
     return None
 
 

@@ -1,23 +1,24 @@
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping, MutableMapping, Sequence
 import itertools
 import re
 from typing import Any
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
-from mdformat.renderer import LOGGER, MDRenderer
+from mdformat.renderer import DEFAULT_RENDERER_FUNCS, LOGGER, RenderTreeNode
+from mdformat.renderer.typing import RendererFunc
 
-import mdformat_toc
 from mdformat_toc._heading import Heading, HeadingTree
 from mdformat_toc._options import Opts
 from mdformat_toc._tokens import (
     copy_block_tokens,
+    find_toc_end_sibling,
     find_toc_end_token,
+    find_toc_start_nodes,
     find_toc_start_token,
-    index_closing_token,
-    is_toc_start,
+    is_toc_start_node,
 )
 from mdformat_toc.slug import SLUG_FUNCS, get_unique_slugify
 
@@ -28,70 +29,122 @@ def update_mdit(_mdit: MarkdownIt) -> None:
     pass
 
 
-def render_token(
-    renderer: MDRenderer,
-    tokens: Sequence[Token],
-    index: int,
+def _init_toc(
+    root: RenderTreeNode,
+    renderer_funcs: Mapping[str, RendererFunc],
     options: Mapping[str, Any],
-    env: dict,
-) -> tuple[str, int] | None:
-    first_pass = "mdformat-toc" not in env
-    if first_pass:
-        env["mdformat-toc"] = {"rendered_headings": 0, "opts": None}
+    env: MutableMapping,
+) -> bool:
+    """Initialize ToC plugin.
 
-        # Load ToC options
-        toc_start_index = find_toc_start_token(tokens)
-        if toc_start_index is None:
-            return None
-        second_toc_start_index = find_toc_start_token(
-            tokens, start_from=toc_start_index + 1
-        )
-        if second_toc_start_index is not None:
-            LOGGER.warning(
-                "Mdformat-toc found more than one ToC indicator lines. "
-                "Only one is supported by the plugin. "
-                "Mdformat-toc disabled."
-            )
-            return None
-        env["mdformat-toc"]["opts"] = Opts.from_start_token(tokens[toc_start_index])
+    Store ToC options and heading structure in `env` if valid ToC
+    options found. Returns `True` if valid ToC options were found, else
+    returns `False`.
+    """
+    env["mdformat-toc"] = {"rendered_headings": 0, "opts": None}
 
-        # Load heading structure
-        toc_end_index = find_toc_end_token(tokens, toc_start_index)
-        if toc_end_index is None:
-            no_toc_tokens: Sequence[Token] = tokens
-        else:
-            no_toc_tokens = tuple(
-                itertools.chain(tokens[:toc_start_index], tokens[toc_end_index + 1 :])
-            )
-        env["mdformat-toc"]["headings"] = _load_headings(
-            renderer, no_toc_tokens, options, env
+    tokens = root.to_tokens()
+
+    # Load ToC options
+    toc_start_index = find_toc_start_token(tokens)
+    if toc_start_index is None:
+        return False
+    second_toc_start_index = find_toc_start_token(
+        tokens, start_from=toc_start_index + 1
+    )
+    if second_toc_start_index is not None:
+        LOGGER.warning(
+            "Mdformat-toc found more than one ToC indicator lines. "
+            "Only one is supported by the plugin. "
+            "Mdformat-toc disabled."
         )
+        return False
+    env["mdformat-toc"]["opts"] = Opts.from_start_token(tokens[toc_start_index])
+
+    # Load heading structure
+    toc_end_index = find_toc_end_token(tokens, toc_start_index)
+    if toc_end_index is None:
+        no_toc_tokens: Sequence[Token] = tokens
+    else:
+        no_toc_tokens = tuple(
+            itertools.chain(tokens[:toc_start_index], tokens[toc_end_index + 1 :])
+        )
+    env["mdformat-toc"]["headings"] = _load_headings(
+        renderer_funcs, no_toc_tokens, options, env
+    )
+    return True
+
+
+def _toc_enabled(env: MutableMapping) -> bool:
+    opts = env["mdformat-toc"]["opts"]
+    return bool(opts)
+
+
+def _render_root(
+    node: RenderTreeNode,
+    renderer_funcs: Mapping[str, RendererFunc],
+    options: Mapping[str, Any],
+    env: MutableMapping,
+) -> str:
+    toc_enabled = _init_toc(node, renderer_funcs, options, env)
+    if toc_enabled:
+        (toc_start_node,) = find_toc_start_nodes(node)
+        assert toc_start_node.parent is not None, "toc start cant be root"
+        toc_end_node = find_toc_end_sibling(toc_start_node)
+        if toc_end_node:
+            toc_start_index = toc_start_node.siblings.index(toc_start_node)
+            toc_end_index = toc_start_node.siblings.index(toc_end_node)
+            toc_start_node.parent.children = (
+                toc_start_node.parent.children[: toc_start_index + 1]
+                + toc_start_node.parent.children[toc_end_index + 1 :]
+            )
+    return DEFAULT_RENDERER_FUNCS["root"](node, renderer_funcs, options, env)
+
+
+def _render_heading(
+    node: RenderTreeNode,
+    renderer_funcs: Mapping[str, RendererFunc],
+    options: Mapping[str, Any],
+    env: MutableMapping,
+) -> str:
+    if not _toc_enabled(env):
+        DEFAULT_RENDERER_FUNCS["heading"](node, renderer_funcs, options, env)
+
+    heading_idx = env["mdformat-toc"]["rendered_headings"]
+    heading = env["mdformat-toc"]["headings"].headings[heading_idx]
+    env["mdformat-toc"]["rendered_headings"] += 1
+    return heading.markdown
+
+
+def _render_html_block(
+    node: RenderTreeNode,
+    renderer_funcs: Mapping[str, RendererFunc],
+    options: Mapping[str, Any],
+    env: MutableMapping,
+) -> str:
+    if not _toc_enabled(env) or not is_toc_start_node(node):
+        DEFAULT_RENDERER_FUNCS["html_block"](node, renderer_funcs, options, env)
 
     opts = env["mdformat-toc"]["opts"]
-    if not opts:
-        return None
+    text = f"<!-- mdformat-toc start {opts} -->\n\n"
+    # toc_end_index = find_toc_end_token(tokens, index)
+    # last_consumed_index = toc_end_index if toc_end_index is not None else index
 
-    token = tokens[index]
+    text += _render_toc(
+        env["mdformat-toc"]["headings"],
+        minlevel=opts.minlevel,
+        maxlevel=opts.maxlevel,
+    )
+    text += "\n<!-- mdformat-toc end -->"
 
-    if is_toc_start(token):
-        text = f"<!-- mdformat-toc start {opts} -->\n\n"
-        toc_end_index = find_toc_end_token(tokens, index)
-        last_consumed_index = toc_end_index if toc_end_index is not None else index
+    return text
 
-        text += _render_toc(
-            env["mdformat-toc"]["headings"],
-            minlevel=opts.minlevel,
-            maxlevel=opts.maxlevel,
-        )
-        text += "\n<!-- mdformat-toc end -->\n\n"
 
-        return text, last_consumed_index
-    if token.type == "heading_open":
-        heading_idx = env["mdformat-toc"]["rendered_headings"]
-        heading = env["mdformat-toc"]["headings"].headings[heading_idx]
-        env["mdformat-toc"]["rendered_headings"] += 1
-        return heading.markdown, index_closing_token(tokens, index)
-    return None
+RENDERER_FUNCS = {
+    "root": _render_root,
+    "html_block": _render_html_block,
+    "heading": _render_heading,
+}
 
 
 def _render_toc(
@@ -115,7 +168,10 @@ def _render_toc(
 
 
 def _load_headings(
-    renderer: MDRenderer, tokens: Sequence[Token], options: Mapping[str, Any], env: dict
+    renderer_funcs: Mapping[str, RendererFunc],
+    tokens: Sequence[Token],
+    options: Mapping[str, Any],
+    env: MutableMapping,
 ) -> HeadingTree:
     toc_opts = env["mdformat-toc"]["opts"]
     unique_slugify = get_unique_slugify(SLUG_FUNCS[toc_opts.slug_style])
@@ -156,9 +212,15 @@ def _load_headings(
                 child.content = child.content.format(slug=slug)
 
         # Render heading Markdown (with mdformat-toc disabled)
-        options["parser_extension"].remove(mdformat_toc.plugin)
-        heading_md = renderer.render(heading_tokens, options, env, finalize=False)
-        options["parser_extension"].append(mdformat_toc.plugin)
+        toc_disabled_renderer_funcs = {
+            **renderer_funcs,
+            "heading": DEFAULT_RENDERER_FUNCS["heading"],
+            "html_block": DEFAULT_RENDERER_FUNCS["html_block"],
+            "root": DEFAULT_RENDERER_FUNCS["root"],
+        }
+        heading_md = RenderTreeNode(heading_tokens).render(
+            toc_disabled_renderer_funcs, options, env
+        )
 
         headings.append(
             Heading(
