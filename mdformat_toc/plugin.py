@@ -6,8 +6,8 @@ from typing import Any
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
+from mdformat import codepoints
 from mdformat.renderer import DEFAULT_RENDERER_FUNCS, LOGGER, RenderTreeNode
-from mdformat.renderer._util import maybe_add_link_brackets
 from mdformat.renderer.typing import RendererFunc
 
 from mdformat_toc._heading import Heading, HeadingTree
@@ -150,7 +150,7 @@ def _render_toc(
 
     for heading in heading_tree.headings:
         indentation = "  " * heading_tree.get_indentation_level(heading)
-        uri = maybe_add_link_brackets("#" + heading.slug)
+        uri = _maybe_add_link_brackets("#" + heading.slug)
         toc += f"{indentation}- [{heading.text}]({uri})\n"
 
     return toc
@@ -265,3 +265,12 @@ def _ensure_anchors_in_place(heading_tokens: Sequence[Token]) -> None:
         Token("html_inline", "", 0, content="</a>"),
     ]
     inline_root.children += link_tokens
+
+
+def _maybe_add_link_brackets(link: str) -> str:
+    """Surround URI with brackets if required by the CommonMark spec."""
+    if not link or (
+        codepoints.ASCII_CTRL | codepoints.ASCII_WHITESPACE | {"(", ")"}
+    ).intersection(link):
+        return "<" + link + ">"
+    return link

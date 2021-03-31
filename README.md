@@ -9,13 +9,13 @@
 
 <!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=2 -->
 
-- [Description](<#description>)
-- [Install](<#install>)
-- [Usage](<#usage>)
-  - [Configuration](<#configuration>)
-    - [Minimum and maximum heading levels](<#minimum-and-maximum-heading-levels>)
-    - [Disabling anchor generation](<#disabling-anchor-generation>)
-    - [Changing the slug function](<#changing-the-slug-function>)
+- [Description](#description)
+- [Install](#install)
+- [Usage](#usage)
+  - [Configuration](#configuration)
+    - [Minimum and maximum heading levels](#minimum-and-maximum-heading-levels)
+    - [Disabling anchor generation](#disabling-anchor-generation)
+    - [Changing the slug function](#changing-the-slug-function)
 
 <!-- mdformat-toc end -->
 
