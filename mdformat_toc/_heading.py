@@ -30,9 +30,9 @@ class HeadingTree:
 
     def _get_parent(self, child_idx: int) -> Heading | None:
         child = self.headings[child_idx]
-        for i in reversed(range(child_idx)):
-            if self.headings[i].level < child.level:
-                return self.headings[i]
+        for heading in reversed(self.headings[:child_idx]):
+            if heading.level < child.level:
+                return heading
         return None
 
     def get_indentation_level(self, heading: Heading) -> int:

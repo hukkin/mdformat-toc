@@ -7,6 +7,7 @@ from typing import Any
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from mdformat.renderer import DEFAULT_RENDERER_FUNCS, LOGGER, RenderTreeNode
+from mdformat.renderer._util import maybe_add_link_brackets
 from mdformat.renderer.typing import RendererFunc
 
 from mdformat_toc._heading import Heading, HeadingTree
@@ -114,12 +115,15 @@ def _render_html_block(
     opts = env["mdformat-toc"]["opts"]
     text = f"<!-- mdformat-toc start {opts} -->\n\n"
 
-    text += _render_toc(
+    toc = _render_toc(
         env["mdformat-toc"]["headings"],
         minlevel=opts.minlevel,
         maxlevel=opts.maxlevel,
     )
-    text += "\n<!-- mdformat-toc end -->"
+    if toc:
+        text += toc + "\n"
+
+    text += "<!-- mdformat-toc end -->"
 
     return text
 
@@ -146,7 +150,8 @@ def _render_toc(
 
     for heading in heading_tree.headings:
         indentation = "  " * heading_tree.get_indentation_level(heading)
-        toc += f"{indentation}- [{heading.text}](<#{heading.slug}>)\n"
+        uri = maybe_add_link_brackets("#" + heading.slug)
+        toc += f"{indentation}- [{heading.text}]({uri})\n"
 
     return toc
 

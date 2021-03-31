@@ -5,7 +5,7 @@ HTML in heading
 .
 <!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
 
-- [HTML here `<h1>lol</h1>`](<#html-here-h1lolh1>)
+- [HTML here `<h1>lol</h1>`](#html-here-h1lolh1)
 
 <!-- mdformat-toc end -->
 
@@ -22,10 +22,10 @@ Duplicate title
 .
 <!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
 
-- [Same name](<#same-name>)
-- [Same name](<#same-name-1>)
-  - [Same name](<#same-name-2>)
-    - [Same name](<#same-name-3>)
+- [Same name](#same-name)
+- [Same name](#same-name-1)
+  - [Same name](#same-name-2)
+    - [Same name](#same-name-3)
 
 <!-- mdformat-toc end -->
 
@@ -49,8 +49,8 @@ Level restrictions
 .
 <!-- mdformat-toc start --slug=github --no-anchors --maxlevel=3 --minlevel=2 -->
 
-- [Level 2](<#level-2>)
-  - [Level 3](<#level-3>)
+- [Level 2](#level-2)
+  - [Level 3](#level-3)
 
 <!-- mdformat-toc end -->
 
@@ -71,7 +71,6 @@ No headers.
 No TOC in this file.
 .
 <!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
-
 
 <!-- mdformat-toc end -->
 
@@ -100,11 +99,11 @@ Level 1
 
 <!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
 
-- [Level 1](<#level-1>)
-  - [Level  zwei](<#level--zwei>)
-  - [Level 2 ., Azwei](<#level-2--azwei>)
-  - [Level 2 .+ Az//&w_äöe-i](<#level-2--azw_%C3%A4%C3%B6e-i>)
-- [Level 1](<#level-1-1>)
+- [Level 1](#level-1)
+  - [Level  zwei](#level--zwei)
+  - [Level 2 ., Azwei](#level-2--azwei)
+  - [Level 2 .+ Az//&w_äöe-i](#level-2--azw_%C3%A4%C3%B6e-i)
+- [Level 1](#level-1-1)
 
 <!-- mdformat-toc end -->
 
@@ -127,7 +126,7 @@ Gitlab slug
 .
 <!-- mdformat-toc start --slug=gitlab --no-anchors --maxlevel=6 --minlevel=1 -->
 
-- [Gitlab slug reduces-------hyphens](<#gitlab-slug-reduces-hyphens>)
+- [Gitlab slug reduces-------hyphens](#gitlab-slug-reduces-hyphens)
 
 <!-- mdformat-toc end -->
 
@@ -143,8 +142,8 @@ Add anchors
 .
 <!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
 
-- [This title has an anchor](<#this-title-has-an-anchor>)
-- [This title too](<#this-title-too>)
+- [This title has an anchor](#this-title-has-an-anchor)
+- [This title too](#this-title-too)
 
 <!-- mdformat-toc end -->
 
@@ -168,8 +167,8 @@ Anchors already in place
 .
 <!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
 
-- [This title has an anchor](<#this-title-has-an-anchor>)
-- [This title too](<#this-title-too>)
+- [This title has an anchor](#this-title-has-an-anchor)
+- [This title too](#this-title-too)
 
 <!-- mdformat-toc end -->
 
@@ -189,8 +188,8 @@ Anchors only on ToC levels
 .
 <!-- mdformat-toc start --slug=github --maxlevel=3 --minlevel=2 -->
 
-- [Anchor pls](<#anchor-pls>)
-  - [Title](<#title-1>)
+- [Anchor pls](#anchor-pls)
+  - [Title](#title-1)
 
 <!-- mdformat-toc end -->
 
