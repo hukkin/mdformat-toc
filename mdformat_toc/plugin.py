@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from collections.abc import Mapping, MutableMapping, Sequence
+from collections.abc import MutableMapping, Sequence
 import re
-from typing import Any
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from mdformat import codepoints
-from mdformat.renderer import DEFAULT_RENDERER_FUNCS, LOGGER, RenderTreeNode
-from mdformat.renderer.typing import RendererFunc
+from mdformat.renderer import DEFAULT_RENDERERS, LOGGER, RenderContext, RenderTreeNode
 
 from mdformat_toc._heading import Heading, HeadingTree
 from mdformat_toc._options import Opts
@@ -29,9 +27,7 @@ def update_mdit(_mdit: MarkdownIt) -> None:
 
 def _init_toc(
     root: RenderTreeNode,
-    renderer_funcs: Mapping[str, RendererFunc],
-    options: Mapping[str, Any],
-    env: MutableMapping,
+    context: RenderContext,
 ) -> None:
     """Initialize ToC plugin.
 
@@ -39,7 +35,7 @@ def _init_toc(
     options found.
     """
     assert root.type == "root"
-    env["mdformat-toc"] = {"rendered_headings": 0, "opts": None}
+    context.env["mdformat-toc"] = {"rendered_headings": 0, "opts": None}
 
     # Load ToC options
     toc_start_nodes = find_toc_start_nodes(root)
@@ -53,7 +49,7 @@ def _init_toc(
         )
         return
     (toc_start_node,) = toc_start_nodes
-    env["mdformat-toc"]["opts"] = Opts.from_start_node(toc_start_node)
+    context.env["mdformat-toc"]["opts"] = Opts.from_start_node(toc_start_node)
 
     # Remove ToC related nodes (besides ToC start node) from the tree.
     # We regenerate and render an up-to-date ToC every time, so if the
@@ -69,7 +65,7 @@ def _init_toc(
         )
 
     # Load heading structure
-    env["mdformat-toc"]["headings"] = _load_headings(renderer_funcs, root, options, env)
+    context.env["mdformat-toc"]["headings"] = _load_headings(root, context)
 
 
 def _toc_enabled(env: MutableMapping) -> bool:
@@ -78,24 +74,15 @@ def _toc_enabled(env: MutableMapping) -> bool:
     return bool(opts)
 
 
-def _render_root(
-    node: RenderTreeNode,
-    renderer_funcs: Mapping[str, RendererFunc],
-    options: Mapping[str, Any],
-    env: MutableMapping,
-) -> str:
-    _init_toc(node, renderer_funcs, options, env)
-    return DEFAULT_RENDERER_FUNCS["root"](node, renderer_funcs, options, env)
+def _render_root(node: RenderTreeNode, context: RenderContext) -> str:
+    _init_toc(node, context)
+    return DEFAULT_RENDERERS["root"](node, context)
 
 
-def _render_heading(
-    node: RenderTreeNode,
-    renderer_funcs: Mapping[str, RendererFunc],
-    options: Mapping[str, Any],
-    env: MutableMapping,
-) -> str:
+def _render_heading(node: RenderTreeNode, context: RenderContext) -> str:
+    env = context.env
     if not _toc_enabled(env):
-        return DEFAULT_RENDERER_FUNCS["heading"](node, renderer_funcs, options, env)
+        return DEFAULT_RENDERERS["heading"](node, context)
 
     heading_idx = env["mdformat-toc"]["rendered_headings"]
     heading = env["mdformat-toc"]["headings"].headings[heading_idx]
@@ -103,14 +90,10 @@ def _render_heading(
     return heading.markdown
 
 
-def _render_html_block(
-    node: RenderTreeNode,
-    renderer_funcs: Mapping[str, RendererFunc],
-    options: Mapping[str, Any],
-    env: MutableMapping,
-) -> str:
+def _render_html_block(node: RenderTreeNode, context: RenderContext) -> str:
+    env = context.env
     if not _toc_enabled(env) or not is_toc_start_node(node):
-        return DEFAULT_RENDERER_FUNCS["html_block"](node, renderer_funcs, options, env)
+        return DEFAULT_RENDERERS["html_block"](node, context)
 
     opts = env["mdformat-toc"]["opts"]
     text = f"<!-- mdformat-toc start {opts} -->\n\n"
@@ -128,7 +111,7 @@ def _render_html_block(
     return text
 
 
-RENDERER_FUNCS = {
+RENDERERS = {
     "root": _render_root,
     "html_block": _render_html_block,
     "heading": _render_heading,
@@ -156,12 +139,8 @@ def _render_toc(
     return toc
 
 
-def _load_headings(
-    renderer_funcs: Mapping[str, RendererFunc],
-    root: RenderTreeNode,
-    options: Mapping[str, Any],
-    env: MutableMapping,
-) -> HeadingTree:
+def _load_headings(root: RenderTreeNode, context: RenderContext) -> HeadingTree:
+    env = context.env
     tokens = root.to_tokens()
     toc_opts = env["mdformat-toc"]["opts"]
     unique_slugify = get_unique_slugify(SLUG_FUNCS[toc_opts.slug_style])
@@ -203,11 +182,16 @@ def _load_headings(
 
         # Render heading Markdown (with mdformat-toc disabled)
         toc_disabled_renderer_funcs = {
-            name: DEFAULT_RENDERER_FUNCS[name] if name in RENDERER_FUNCS else func
-            for name, func in renderer_funcs.items()
+            name: DEFAULT_RENDERERS[name] if name in RENDERERS else func
+            for name, func in context.renderers.items()
         }
         heading_md = RenderTreeNode(heading_tokens).render(
-            toc_disabled_renderer_funcs, options, env
+            RenderContext(
+                toc_disabled_renderer_funcs,
+                context.postprocessors,
+                context.options,
+                env,
+            )
         )
 
         headings.append(
