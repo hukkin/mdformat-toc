@@ -6,7 +6,7 @@ import re
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
 from mdformat import codepoints
-from mdformat.renderer import DEFAULT_RENDERERS, LOGGER, RenderContext, RenderTreeNode
+from mdformat.renderer import LOGGER, RenderContext, RenderTreeNode
 
 from mdformat_toc._heading import Heading, HeadingTree
 from mdformat_toc._options import Opts
@@ -76,13 +76,13 @@ def _toc_enabled(env: MutableMapping) -> bool:
 
 def _render_root(node: RenderTreeNode, context: RenderContext) -> str:
     _init_toc(node, context)
-    return DEFAULT_RENDERERS["root"](node, context)
+    return node.render(context.with_default_renderer_for("root"))
 
 
 def _render_heading(node: RenderTreeNode, context: RenderContext) -> str:
     env = context.env
     if not _toc_enabled(env):
-        return DEFAULT_RENDERERS["heading"](node, context)
+        return node.render(context.with_default_renderer_for("heading"))
 
     heading_idx = env["mdformat-toc"]["rendered_headings"]
     heading = env["mdformat-toc"]["headings"].headings[heading_idx]
@@ -93,7 +93,7 @@ def _render_heading(node: RenderTreeNode, context: RenderContext) -> str:
 def _render_html_block(node: RenderTreeNode, context: RenderContext) -> str:
     env = context.env
     if not _toc_enabled(env) or not is_toc_start_node(node):
-        return DEFAULT_RENDERERS["html_block"](node, context)
+        return node.render(context.with_default_renderer_for("html_block"))
 
     opts = env["mdformat-toc"]["opts"]
     text = f"<!-- mdformat-toc start {opts} -->\n\n"
@@ -181,17 +181,8 @@ def _load_headings(root: RenderTreeNode, context: RenderContext) -> HeadingTree:
                 child.content = child.content.format(slug=slug)
 
         # Render heading Markdown (with mdformat-toc disabled)
-        toc_disabled_renderer_funcs = {
-            name: DEFAULT_RENDERERS[name] if name in RENDERERS else func
-            for name, func in context.renderers.items()
-        }
         heading_md = RenderTreeNode(heading_tokens).render(
-            RenderContext(
-                toc_disabled_renderer_funcs,
-                context.postprocessors,
-                context.options,
-                env,
-            )
+            context.with_default_renderer_for(*RENDERERS)
         )
 
         headings.append(

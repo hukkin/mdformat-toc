@@ -31,7 +31,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.7"
-mdformat = ">=0.7.0,<0.8.0"
+mdformat = ">=0.7.1,<0.8.0"
 
 [tool.poetry.dev-dependencies]
 # Tests
