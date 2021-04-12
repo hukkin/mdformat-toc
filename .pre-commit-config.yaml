@@ -30,7 +30,7 @@ repos:
     - flake8-builtins
     - flake8-comprehensions
 - repo: https://github.com/executablebooks/mdformat
-  rev: c663f15e3c2a313466bfbd5efddef77856307a5c  # frozen: 0.6.2
+  rev: f561781e2d270849a24462dfc9791224dd26098b  # frozen: 0.6.4
   hooks:
   - id: mdformat
     files: 'README.md'
