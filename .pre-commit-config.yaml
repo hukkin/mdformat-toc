@@ -14,7 +14,7 @@ repos:
   hooks:
   - id: isort
 - repo: https://github.com/psf/black
-  rev: e66be67b9b6811913470f70c28b4d50f94d05b22  # frozen: 20.8b1
+  rev: b39999da7f451c285befac217f1f9a685774b34d  # frozen: 21.4b2
   hooks:
   - id: black
 - repo: https://github.com/myint/docformatter
@@ -22,7 +22,7 @@ repos:
   hooks:
   - id: docformatter
 - repo: https://gitlab.com/pycqa/flake8
-  rev: 56370aae451722f9d77a5ccd6fb6e231a4a8e651  # frozen: 3.9.0
+  rev: 55855a5e3b1ab82f4bbcb899b368fbb0afbe7ee8  # frozen: 3.9.1
   hooks:
   - id: flake8
     additional_dependencies:
@@ -30,7 +30,7 @@ repos:
     - flake8-builtins
     - flake8-comprehensions
 - repo: https://github.com/executablebooks/mdformat
-  rev: f561781e2d270849a24462dfc9791224dd26098b  # frozen: 0.6.4
+  rev: 05db904714137bf4c34b021df696ae13c31b23da  # frozen: 0.7.5
   hooks:
   - id: mdformat
     files: 'README.md'

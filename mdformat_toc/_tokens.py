@@ -2,7 +2,7 @@
 and token streams."""
 from __future__ import annotations
 
-from collections.abc import Callable, Sequence
+from collections.abc import Sequence
 import copy
 
 from markdown_it.token import Token
@@ -31,22 +31,7 @@ def is_toc_start_node(node: RenderTreeNode) -> bool:
 
 
 def find_toc_start_nodes(node: RenderTreeNode) -> list[RenderTreeNode]:
-    start_nodes = []
-
-    def append_toc_start(node: RenderTreeNode) -> None:
-        if is_toc_start_node(node):
-            start_nodes.append(node)
-
-    for_all_nodes(node, append_toc_start)
-    return start_nodes
-
-
-def for_all_nodes(
-    node: RenderTreeNode, action: Callable[[RenderTreeNode], None]
-) -> None:
-    action(node)
-    for child in node.children:
-        for_all_nodes(child, action)
+    return [n for n in node.walk() if is_toc_start_node(n)]
 
 
 def find_toc_end_sibling(node: RenderTreeNode) -> RenderTreeNode | None:
