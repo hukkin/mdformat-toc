@@ -43,6 +43,9 @@ pre-commit = "*"
 mypy = "*"
 bump2version = "*"
 
+[tool.poetry.build]
+generate-setup-file = false
+
 
 [tool.isort]
 # Force imports to be sorted by module, independent of import type
