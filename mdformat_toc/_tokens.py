@@ -1,5 +1,6 @@
 """A namespace for functions that process tokens (i.e. markdown_it.token.Token)
 and token streams."""
+
 from __future__ import annotations
 
 from collections.abc import Sequence

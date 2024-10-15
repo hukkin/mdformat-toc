@@ -6,9 +6,9 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "mdformat-toc"
 version = "0.3.0"  # DO NOT EDIT THIS LINE MANUALLY. LET bump2version UTILITY DO IT
-authors = ["Taneli Hukkinen <hukkinj1@users.noreply.github.com>"]
+authors = ["Taneli Hukkinen <hukkin@users.noreply.github.com>"]
 description = "Mdformat plugin to generate table of contents"
-repository = "https://github.com/hukkinj1/mdformat-toc"
+repository = "https://github.com/hukkin/mdformat-toc"
 readme = "README.md"
 license = "MIT"
 classifiers = [
@@ -24,13 +24,13 @@ packages = [
 #include = ["mdformat_toc/py.typed"]
 
 #[tool.poetry.urls]
-#"Changelog" = "https://github.com/hukkinj1/mdformat-toc/blob/master/CHANGELOG.md"
+#"Changelog" = "https://github.com/hukkin/mdformat-toc/blob/master/CHANGELOG.md"
 
 [tool.poetry.plugins."mdformat.parser_extension"]
 "toc" = "mdformat_toc.plugin"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = ">=3.9"
 mdformat = ">=0.7.5,<0.8.0"
 
 [tool.poetry.dev-dependencies]
