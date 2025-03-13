@@ -5,7 +5,9 @@ import re
 
 from markdown_it import MarkdownIt
 from markdown_it.token import Token
+import mdformat
 from mdformat import codepoints
+import mdformat.plugins
 from mdformat.renderer import LOGGER, RenderContext, RenderTreeNode
 
 from mdformat_toc._heading import Heading, HeadingTree
@@ -100,6 +102,7 @@ def _render_html_block(node: RenderTreeNode, context: RenderContext) -> str:
 
     toc = _render_toc(
         env["mdformat-toc"]["headings"],
+        context,
         minlevel=opts.minlevel,
         maxlevel=opts.maxlevel,
     )
@@ -120,6 +123,7 @@ RENDERERS = {
 
 def _render_toc(
     heading_tree: HeadingTree,
+    context: RenderContext,
     *,
     minlevel: int,
     maxlevel: int,
@@ -136,7 +140,20 @@ def _render_toc(
         uri = _maybe_add_link_brackets("#" + heading.slug)
         toc += f"{indentation}- [{heading.text}]({uri})\n"
 
-    return toc
+    # Unlike code-formatters, parser_extensions are stored as a list without
+    # their identifier in the context. This is not exactly clean because we are
+    # not respecting ParserExtensionInterface (i.e. we are relying on this being
+    # hashable, which is not part of the contract).
+    used_extensions = [
+        name
+        for name, ext in mdformat.plugins.PARSER_EXTENSIONS.items()
+        if ext in set(context.options["parser_extension"])
+    ]
+    return mdformat.text(
+        toc,
+        extensions=used_extensions,
+        codeformatters=context.options["codeformatters"].keys(),
+    )
 
 
 def _load_headings(root: RenderTreeNode, context: RenderContext) -> HeadingTree:
