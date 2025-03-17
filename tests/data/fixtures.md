@@ -100,7 +100,7 @@ Level 1
 <!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
 
 - [Level 1](#level-1)
-  - [Level  zwei](#level--zwei)
+  - [Level zwei](#level-zwei)
   - [Level 2 ., Azwei](#level-2--azwei)
   - [Level 2 .+ Az//&w_äöe-i](#level-2--azw_%C3%A4%C3%B6e-i)
 - [Level 1](#level-1-1)
@@ -109,7 +109,7 @@ Level 1
 
 # Level 1
 
-### Level  zwei
+### Level zwei
 
 ## Level 2 ., Azwei
 

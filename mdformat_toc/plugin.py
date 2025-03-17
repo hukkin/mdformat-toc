@@ -166,7 +166,7 @@ def _load_headings(root: RenderTreeNode, context: RenderContext) -> HeadingTree:
         heading_text = ""
         for child in inline_token.children:
             if child.type == "text":
-                heading_text += child.content
+                heading_text += re.sub(r"[ \t]+", " ", child.content)
             elif child.type == "code_inline":
                 heading_text += "`" + child.content + "`"
         # There can be newlines in setext headers. Convert newlines to spaces.
