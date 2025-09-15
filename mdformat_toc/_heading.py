@@ -9,6 +9,7 @@ class Heading(NamedTuple):
     text: str
     slug: str
     markdown: str
+    directly_excluded: bool
 
 
 class HeadingTree:
@@ -42,3 +43,13 @@ class HeadingTree:
             level += 1
             ancestor = self._parents[ancestor]
         return level
+
+    def is_effectively_excluded(self, heading: Heading) -> bool:
+        if heading.directly_excluded:
+            return True
+        ancestor = self._parents[heading]
+        while ancestor is not None:
+            if ancestor.directly_excluded:
+                return True
+            ancestor = self._parents[ancestor]
+        return False

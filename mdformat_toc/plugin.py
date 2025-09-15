@@ -126,10 +126,14 @@ def _render_toc(
 ) -> str:
     toc = ""
 
-    # Filter unwanted heading levels
-    heading_tree = HeadingTree(
-        h for h in heading_tree.headings if minlevel <= h.level <= maxlevel
-    )
+    # Filter unwanted heading levels and excluded headings
+    filtered_headings = [
+        h
+        for h in heading_tree.headings
+        if minlevel <= h.level <= maxlevel
+        and not heading_tree.is_effectively_excluded(h)
+    ]
+    heading_tree = HeadingTree(filtered_headings)
 
     for heading in heading_tree.headings:
         indentation = "  " * heading_tree.get_indentation_level(heading)
@@ -163,12 +167,20 @@ def _load_headings(root: RenderTreeNode, context: RenderContext) -> HeadingTree:
         assert (
             inline_token.children is not None
         ), "inline token's children must not be None"
+
         heading_text = ""
+        excluded = False
+
         for child in inline_token.children:
             if child.type == "text":
                 heading_text += child.content
             elif child.type == "code_inline":
                 heading_text += "`" + child.content + "`"
+            elif (
+                child.type == "html_inline" and "mdformat-toc exclude" in child.content
+            ):
+                excluded = True
+
         # There can be newlines in setext headers. Convert newlines to spaces.
         heading_text = heading_text.replace("\n", " ").rstrip()
 
@@ -191,6 +203,7 @@ def _load_headings(root: RenderTreeNode, context: RenderContext) -> HeadingTree:
                 text=heading_text,
                 slug=slug,
                 markdown=heading_md,
+                directly_excluded=excluded,
             )
         )
 

@@ -201,3 +201,94 @@ Anchors only on ToC levels
 
 #### No more anchors
 .
+
+Basic exclude functionality
+.
+<!-- mdformat-toc start --no-anchors -->
+
+# Regular heading 1
+# Excluded heading <!-- mdformat-toc exclude -->
+# Regular heading 2
+.
+<!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
+
+- [Regular heading 1](#regular-heading-1)
+- [Regular heading 2](#regular-heading-2)
+
+<!-- mdformat-toc end -->
+
+# Regular heading 1
+
+# Excluded heading <!-- mdformat-toc exclude -->
+
+# Regular heading 2
+.
+
+Basic exclude functionality with anchors
+.
+<!-- mdformat-toc start -->
+
+# Regular heading 1
+# Excluded heading <!-- mdformat-toc exclude -->
+# Regular heading 2
+.
+<!-- mdformat-toc start --slug=github --maxlevel=6 --minlevel=1 -->
+
+- [Regular heading 1](#regular-heading-1)
+- [Regular heading 2](#regular-heading-2)
+
+<!-- mdformat-toc end -->
+
+# Regular heading 1<a name="regular-heading-1"></a>
+
+# Excluded heading <!-- mdformat-toc exclude --><a name="excluded-heading"></a>
+
+# Regular heading 2<a name="regular-heading-2"></a>
+.
+
+Nested exclude functionality
+.
+<!-- mdformat-toc start --no-anchors -->
+
+# First heading
+## Second heading <!-- mdformat-toc exclude -->
+### Third heading
+#### Fourth heading
+## Another section not nested under excluded header
+.
+<!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
+
+- [First heading](#first-heading)
+  - [Another section not nested under excluded header](#another-section-not-nested-under-excluded-header)
+
+<!-- mdformat-toc end -->
+
+# First heading
+
+## Second heading <!-- mdformat-toc exclude -->
+
+### Third heading
+
+#### Fourth heading
+
+## Another section not nested under excluded header
+.
+
+Exclude with other inline content
+.
+<!-- mdformat-toc start --no-anchors -->
+
+# Heading with *emphasis* <!-- mdformat-toc exclude -->
+# Another heading with `code` and **bold** <!-- mdformat-toc exclude -->
+# Heading with [link](http://example.com) <!-- mdformat-toc exclude -->
+.
+<!-- mdformat-toc start --slug=github --no-anchors --maxlevel=6 --minlevel=1 -->
+
+<!-- mdformat-toc end -->
+
+# Heading with *emphasis* <!-- mdformat-toc exclude -->
+
+# Another heading with `code` and **bold** <!-- mdformat-toc exclude -->
+
+# Heading with [link](http://example.com) <!-- mdformat-toc exclude -->
+.
