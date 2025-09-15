@@ -16,6 +16,7 @@
     - [Minimum and maximum heading levels](#minimum-and-maximum-heading-levels)
     - [Disabling anchor generation](#disabling-anchor-generation)
     - [Changing the slug function](#changing-the-slug-function)
+    - [Excluding headings](#excluding-headings)
 
 <!-- mdformat-toc end -->
 
@@ -114,3 +115,25 @@ because GitHub's Markdown renderer modifies the HTML anchors mdformat-toc create
 The default configuration
 (GitHub slug function and anchor generation)
 is the only configuration cross-compatible with GitHub and GitLab.
+
+#### Excluding headings
+
+You can exclude specific headings from the table of contents by adding a `<!-- mdformat-toc exclude -->` comment to the heading line:
+
+```markdown
+# This heading will appear in the ToC
+# This heading will not appear <!-- mdformat-toc exclude -->
+# This heading will appear in the ToC
+```
+
+When a heading is excluded, all of its subheadings are also automatically excluded from the ToC:
+
+```markdown
+# Main section
+## Sub-section <!-- mdformat-toc exclude -->
+### This won't appear in ToC (excluded because parent is excluded)
+#### This won't appear either
+## Another subsection (this will appear)
+```
+
+The exclude comment can be used alongside other inline markdown elements like emphasis, code, or links within the heading.
