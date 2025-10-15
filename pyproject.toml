@@ -37,6 +37,7 @@ mdformat = ">=0.7.5,<0.8.0"
 # Tests
 pytest = "*"
 pytest-randomly = "*"
+mdformat-mkdocs = ">=4.1.2,< 4.2.0"
 
 # Tools
 pre-commit = "*"
