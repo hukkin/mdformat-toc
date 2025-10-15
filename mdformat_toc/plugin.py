@@ -244,8 +244,6 @@ def _ensure_anchors_in_place(heading_tokens: Sequence[Token]) -> None:
 
 def _maybe_add_link_brackets(link: str) -> str:
     """Surround URI with brackets if required by the CommonMark spec."""
-    if not link or (
-        codepoints.ASCII_CTRL | codepoints.ASCII_WHITESPACE | {"(", ")"}
-    ).intersection(link):
+    if not link or (codepoints.ASCII_CTRL | {" ", "(", ")"}).intersection(link):
         return "<" + link + ">"
     return link
